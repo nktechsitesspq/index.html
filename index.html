@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="bg-background">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>NX Empréstimos — Carteira de Clientes</title>
+<meta name="description" content="Ferramenta privada de gestão de empréstimos legais — NX Empréstimos." />
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0OCIgZmlsbD0iIzA1MDUwNSIgc3Ryb2tlPSIjRDRBRjM3IiBzdHJva2Utd2lkdGg9IjQiLz48dGV4dCB4PSI1MCIgeT0iNjciIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC1zaXplPSI0NCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI0Q0QUYzNyI+Tlg8L3RleHQ+PC9zdmc+" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   NX EMPRÉSTIMOS — TEMA ESCURO PROFISSIONAL
+   ========================================================= */
+:root{
+  --bg:#000000;
+  --bg-soft:#08090b;
+  --card:#141619;
+  --card-2:#1b1e23;
+  --card-3:#23272e;
+  --line:#2a2f37;
+  --text:#f2f4f7;
+  --muted:#9aa3af;
+  --muted-2:#6b7280;
+
+  --blue:#2f6df6;
+  --blue-2:#1e50c8;
+  --green:#22c55e;
+  --green-soft:rgba(34,197,94,.12);
+  --amber:#f5a524;
+  --amber-soft:rgba(245,165,36,.12);
+  --red:#ef4444;
+  --red-soft:rgba(239,68,68,.12);
+  --gold:#d4af37;
+  --gold-2:#f7dfa5;
+
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 10px 30px rgba(0,0,0,.55);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+body{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  font-size:15px;line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:16px}
+button{cursor:pointer;border:0;background:none;color:inherit}
+img{max-width:100%;display:block}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#2b3038;border-radius:8px}
+
+/* ---------- utilitários ---------- */
+.hide{display:none !important}
+.row{display:flex;align-items:center}
+.between{justify-content:space-between}
+.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.grow{flex:1;min-width:0}
+.center{text-align:center}
+.muted{color:var(--muted)}
+.tiny{font-size:12px}
+.small{font-size:13px}
+.b{font-weight:700}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mono-num{font-variant-numeric:tabular-nums}
+
+/* ---------- animações ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.35)}70%{box-shadow:0 0 0 22px rgba(212,175,55,0)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+.anim{animation:fadeUp .38s cubic-bezier(.22,.9,.32,1) both}
+.anim-in{animation:fadeIn .3s ease both}
+
+/* =========================================================
+   TELA DE ACESSO
+   ========================================================= */
+#gate{
+  position:fixed;inset:0;z-index:90;
+  background:radial-gradient(120% 80% at 50% 0%,#12131a 0%,#000 62%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:26px;text-align:center;
+}
+#gate .logo-wrap{
+  width:184px;height:184px;border-radius:50%;overflow:hidden;
+  border:1px solid rgba(212,175,55,.35);
+  animation:pulseGold 2.8s infinite, fadeUp .5s both;
+  background:#050505;
+}
+#gate h1{font-size:19px;margin:26px 0 4px;font-weight:700;letter-spacing:.2px}
+#gate p.sub{margin:0 0 22px;color:var(--muted);font-size:13.5px}
+.gate-box{width:100%;max-width:340px;animation:fadeUp .5s .1s both}
+.key-input{
+  width:100%;background:var(--card);border:1px solid var(--line);color:var(--text);
+  border-radius:14px;padding:16px;text-align:center;letter-spacing:12px;
+  font-size:22px;font-weight:700;outline:none;transition:.2s;
+}
+.key-input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,175,55,.12)}
+.key-input.err{border-color:var(--red);animation:shake .4s}
+#gate .legal{margin-top:26px;max-width:340px;font-size:11.5px;color:var(--muted-2);line-height:1.6}
+
+/* =========================================================
+   BOTÕES
+   ========================================================= */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 18px;border-radius:14px;font-weight:700;font-size:15px;
+  background:var(--card-3);color:var(--text);transition:transform .12s,filter .18s,background .18s;
+  width:100%;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 8px 22px rgba(47,109,246,.28)}
+.btn-green{background:linear-gradient(180deg,#25c95f,#169146);color:#04220f;box-shadow:0 8px 22px rgba(34,197,94,.22)}
+.btn-ghost{background:var(--card-2);border:1px solid var(--line)}
+.btn-red{background:var(--red-soft);color:#ff8a8a;border:1px solid rgba(239,68,68,.35)}
+.btn-sm{padding:10px 14px;font-size:13.5px;border-radius:12px;width:auto}
+.btn:disabled{opacity:.55;pointer-events:none}
+
+/* =========================================================
+   APP / LAYOUT
+   ========================================================= */
+#app{max-width:640px;margin:0 auto;padding:38px 16px calc(40px + var(--safe-b));min-height:100vh}
+.screen{animation:slideIn .28s cubic-bezier(.22,.9,.32,1) both}
+
+/* ---------- cabeçalho ---------- */
+.topbar{padding:18px 0 8px;display:flex;align-items:center;gap:12px}
+.avatar{
+  width:46px;height:46px;border-radius:50%;flex:none;
+  background:linear-gradient(145deg,#d4af37,#8c6d16);color:#14100a;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;
+  box-shadow:0 6px 18px rgba(212,175,55,.22);
+}
+.hello{font-size:16.5px;font-weight:700;line-height:1.15}
+.greet{font-size:12.5px;color:var(--muted)}
+.clock{
+  font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;color:var(--gold-2);
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:7px 11px;letter-spacing:.5px;
+}
+.eye-btn{
+  width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;flex:none;transition:.18s;
+}
+.eye-btn:active{transform:scale(.93)}
+
+
+/* ---------- notificações dentro do app ---------- */
+.bell-btn{
+  width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;flex:none;position:relative;transition:.18s;
+}
+.bell-btn:active{transform:scale(.93)}
+.bell-badge{
+  position:absolute;right:-5px;top:-6px;min-width:19px;height:19px;padding:0 5px;
+  border-radius:999px;background:var(--red);color:#fff;font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;border:2px solid #000;
+}
+.alert-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.alert-item{
+  background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:12px 13px;
+  display:flex;gap:11px;align-items:flex-start;
+}
+.alert-item.late{border-color:rgba(239,68,68,.45);background:var(--red-soft)}
+.alert-item.today{border-color:rgba(245,165,36,.42);background:var(--amber-soft)}
+.alert-item.tomorrow{border-color:rgba(47,109,246,.38);background:rgba(47,109,246,.10)}
+.alert-item.newloan,.alert-item.newclient{border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.10)}
+.alert-dot{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none;background:var(--muted)}
+.alert-item.late .alert-dot{background:var(--red)}
+.alert-item.today .alert-dot{background:var(--amber)}
+.alert-item.tomorrow .alert-dot{background:var(--blue)}
+.alert-item.newloan .alert-dot,.alert-item.newclient .alert-dot{background:var(--green)}
+.alert-title{font-weight:800;font-size:13.5px}
+.alert-text{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.alert-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px;
+}
+@media(max-width:390px){
+  .alert-actions{grid-template-columns:1fr}
+}
+.alert-action{
+  border-radius:12px;padding:11px 10px;font-size:12.5px;font-weight:800;
+  background:var(--card-2);border:1px solid var(--line);color:var(--text);
+}
+.alert-action.clear{color:#ff9c9c;border-color:rgba(239,68,68,.35);background:var(--red-soft)}
+.alert-action.active{color:#7fdca4;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+.alert-close{
+  width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  color:#ff9c9c;background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);flex:none;
+  font-size:18px;line-height:1;
+}
+.alert-item.is-read{opacity:.62}
+
+
+/* ---------- indicador de sync ---------- */
+#sync{
+  position:fixed;left:12px;right:auto;top:8px;z-index:70;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(20,22,25,.94);border:1px solid var(--line);backdrop-filter:blur(10px);
+  padding:7px 14px;border-radius:999px;font-size:12px;font-weight:600;color:var(--muted);
+  box-shadow:var(--shadow);animation:fadeIn .25s both;
+}
+#sync .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+#sync.connecting .dot{background:var(--amber)}
+#sync.saving .dot{background:var(--blue)}
+#sync.synced .dot{background:var(--green)}
+#sync.error{color:#ff9c9c;border-color:rgba(239,68,68,.4)}
+#sync.error .dot{background:var(--red)}
+#sync .spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.18);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+
+/* ---------- painel financeiro ---------- */
+.hero{
+  background:linear-gradient(160deg,#1a1d22 0%,#111316 60%,#0d0f12 100%);
+  border:1px solid var(--line);border-radius:22px;padding:20px 18px;margin-top:12px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.hero:before{
+  content:"";position:absolute;right:-60px;top:-70px;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,197,94,.16),transparent 68%);
+}
+.hero .label{font-size:12.5px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+.hero .big{font-size:34px;font-weight:800;color:var(--green);margin-top:6px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.hero-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;position:relative}
+.mini{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:14px;padding:12px}
+.mini .k{font-size:11.5px;color:var(--muted);font-weight:600}
+.mini .v{font-size:17px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+.v-amber{color:var(--amber)}.v-green{color:var(--green)}.v-blue{color:#79a7ff}.v-text{color:var(--text)}.v-red{color:var(--red)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 10px;text-align:center;color:inherit;font:inherit;width:100%;cursor:pointer;transition:transform .12s,border-color .12s,background .12s}.stat:active{transform:scale(.98)}.stat:hover{border-color:#3a414c;background:#1a1d22}
+.stat .n{font-size:20px;font-weight:800}
+.stat .t{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.3;font-weight:600}
+
+/* ---------- ações rápidas ---------- */
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.qcard{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 14px;
+  display:flex;flex-direction:column;gap:10px;align-items:flex-start;transition:.18s;text-align:left;
+}
+.qcard:active{transform:scale(.97);background:var(--card-2)}
+.qicon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center}
+.qicon.blue{background:rgba(47,109,246,.15);color:#8ab0ff}
+.qicon.green{background:var(--green-soft);color:#6ee7a0}
+.qcard .qt{font-weight:700;font-size:14.5px}
+.qcard .qs{font-size:11.5px;color:var(--muted)}
+
+/* ---------- seções ---------- */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px}
+.sec-title{font-size:15px;font-weight:800;letter-spacing:.2px}
+.badge{background:var(--card-3);color:var(--muted);border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700}
+
+/* ---------- lista de clientes ---------- */
+.client-card{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;
+  display:flex;gap:12px;align-items:center;margin-bottom:10px;transition:.18s;width:100%;text-align:left;
+}
+.client-card:active{transform:scale(.985);background:var(--card-2)}
+.ph{
+  width:50px;height:50px;border-radius:50%;flex:none;object-fit:cover;background:var(--card-3);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:var(--gold);
+  border:1px solid rgba(212,175,55,.25);overflow:hidden;
+}
+.ph img{width:100%;height:100%;object-fit:cover}
+.chips{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.chip{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 8px}
+.chip-amber{background:var(--amber-soft);color:#ffc766}
+.chip-green{background:var(--green-soft);color:#6ee7a0}
+.chip-red{background:var(--red-soft);color:#ff9c9c}
+.chip-gray{background:var(--card-3);color:var(--muted)}
+
+.empty{
+  border:1px dashed var(--line);border-radius:18px;padding:30px 18px;text-align:center;color:var(--muted);
+  background:rgba(255,255,255,.015);
+}
+
+/* ---------- barra de navegação interna ---------- */
+.navbar{display:flex;align-items:center;gap:10px;padding:16px 0 6px;position:relative}
+.icon-btn{
+  width:40px;height:40px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;flex:none;transition:.15s;
+}
+.icon-btn:active{transform:scale(.92)}
+.navbar h2{font-size:17px;font-weight:800;margin:0}
+
+/* ---------- formulários ---------- */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.3px}
+.input,textarea.input,select.input{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px;color:var(--text);outline:none;transition:.18s;
+}
+.input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(47,109,246,.14)}
+textarea.input{min-height:92px;resize:vertical;line-height:1.5}
+.input::placeholder{color:#5c6470}
+.input-wrap{position:relative}
+.input-suffix{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:800;pointer-events:none}
+.input-prefix-pad{padding-left:44px}
+.input-prefix{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:800;pointer-events:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:420px){.grid2{grid-template-columns:1fr}}
+
+.readonly-box{
+  background:linear-gradient(150deg,rgba(34,197,94,.13),rgba(34,197,94,.04));
+  border:1px solid rgba(34,197,94,.32);border-radius:16px;padding:15px;margin-bottom:14px;
+}
+.readonly-box .k{font-size:11.5px;font-weight:800;color:#7fdca4;letter-spacing:.6px;text-transform:uppercase}
+.readonly-box .v{font-size:27px;font-weight:800;color:var(--green);margin-top:4px;font-variant-numeric:tabular-nums}
+.readonly-box .d{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ---------- upload ---------- */
+.upload{
+  border:1px dashed var(--line);border-radius:16px;padding:14px;background:rgba(255,255,255,.02);
+  display:flex;align-items:center;gap:12px;
+}
+.upload .thumb{
+  width:56px;height:56px;border-radius:12px;background:var(--card-3);flex:none;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:11px;
+}
+.upload .thumb img{width:100%;height:100%;object-fit:cover}
+input[type=file]{display:none}
+.proof-item{margin-bottom:12px}
+.photo-pick{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px}
+.photo-pick .big-ph{
+  width:104px;height:104px;border-radius:50%;background:var(--card);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted-2);font-size:12px;
+}
+.photo-pick .big-ph img{width:100%;height:100%;object-fit:cover}
+
+/* ---------- cartão de empréstimo ---------- */
+.loan{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+}
+.loan.late{border-color:rgba(239,68,68,.4)}
+.loan.paid{border-color:rgba(34,197,94,.3)}
+.loan:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber)}
+.loan.late:before{background:var(--red)}
+.loan.paid:before{background:var(--green)}
+.loan-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.loan .amount{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.loan .amount.green{color:var(--green)}
+.loan .amount.red{color:var(--red)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:12px}
+.kv .i{background:rgba(255,255,255,.03);border-radius:11px;padding:9px 10px}
+.kv .i .k{font-size:10.5px;color:var(--muted);font-weight:700}
+.kv .i .v{font-size:14px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.late-box{
+  margin-top:12px;background:var(--red-soft);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:10px 12px;
+  font-size:12.5px;color:#ffb0b0;line-height:1.6;
+}
+.note-box{margin-top:10px;background:rgba(255,255,255,.03);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.loan-actions{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
+.link-proofs{
+  background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
+  font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:8px;
+}
+.dots{
+  width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);flex:none;transition:.15s;
+}
+.dots:active{transform:scale(.9)}
+
+/* ---------- comprovantes ---------- */
+.proof-view{margin-bottom:20px}
+.proof-num{
+  width:30px;height:30px;border-radius:9px;background:var(--card-3);color:var(--gold-2);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin-bottom:8px;
+}
+.proof-img{width:100%;border-radius:16px;border:1px solid var(--line);background:var(--card);}
+
+/* ---------- modais ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;padding:16px;animation:fadeIn .18s both;
+}
+@media(min-width:560px){.overlay{align-items:center}}
+.modal{
+  width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:22px;
+  padding:20px;box-shadow:var(--shadow);animation:popIn .26s cubic-bezier(.22,.9,.32,1) both;
+  max-height:88vh;overflow:auto;margin-bottom:var(--safe-b);
+}
+.modal h3{margin:0 0 8px;font-size:17.5px;font-weight:800}
+.modal .mbody{color:var(--muted);font-size:14px;line-height:1.6;white-space:pre-line}
+.modal .macts{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.sheet-item{
+  width:100%;text-align:left;padding:14px;border-radius:14px;background:var(--card-2);border:1px solid var(--line);
+  font-weight:600;font-size:14.5px;display:flex;align-items:center;gap:11px;transition:.15s;
+}
+.sheet-item:active{transform:scale(.98);background:var(--card-3)}
+.sheet-item.danger{color:#ff8a8a;border-color:rgba(239,68,68,.3);background:var(--red-soft)}
+.info-line{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.info-line:last-child{border-bottom:0}
+.info-line .k{color:var(--muted);font-weight:600;flex:none}
+.info-line .v{text-align:right;word-break:break-word}
+
+/* ---------- toast ---------- */
+#toasts{position:fixed;left:50%;bottom:calc(18px + var(--safe-b));transform:translateX(-50%);z-index:120;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 32px);max-width:400px;pointer-events:none}
+.toast{
+  background:rgba(27,30,35,.97);border:1px solid var(--line);border-radius:14px;padding:12px 16px;
+  font-size:13.5px;font-weight:600;box-shadow:var(--shadow);animation:toastIn .25s both;display:flex;gap:9px;align-items:center;
+}
+.toast.ok{border-color:rgba(34,197,94,.4)}
+.toast.err{border-color:rgba(239,68,68,.4);color:#ffb0b0}
+
+
+
+/* ---------- ocultação de valores sem piscar a tela ---------- */
+.value-hidden{
+  display:inline-block;
+  min-width:var(--value-width,auto);
+  white-space:nowrap;
+}
+
+/* ---------- pesquisa de clientes ---------- */
+.client-search{
+  margin:20px 0 8px;position:relative;
+}
+.client-search svg{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  pointer-events:none;
+}
+.client-search input{
+  width:100%;background:var(--card);border:1px solid var(--line);
+  border-radius:15px;padding:14px 14px 14px 45px;color:var(--text);
+  outline:none;font-size:15px;transition:.18s;
+}
+.client-search input:focus{
+  border-color:var(--blue);box-shadow:0 0 0 4px rgba(47,109,246,.14);
+}
+.client-search input::placeholder{color:#6d7581}
+#searchEmpty{margin-top:10px}
+
+/* ---------- rodapé legal ---------- */
+/* ---------- documentos do cliente (adicionado) ---------- */
+.client-docs-title{font-size:13px;font-weight:800;color:var(--text);margin:18px 0 9px}
+.client-docs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.client-doc-card{background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:10px}
+.client-doc-card .doc-label{font-size:11.5px;color:var(--muted);font-weight:800;margin-bottom:8px;line-height:1.35}
+.client-doc-thumb{width:100%;height:130px;border-radius:11px;background:var(--card-3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted-2);font-size:11px;text-align:center}
+.client-doc-thumb img{width:100%;height:100%;object-fit:cover}
+.client-doc-card .btn{margin-top:8px}
+.client-info-docs{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.client-info-doc{background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:10px}
+.client-info-doc .doc-label{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px}
+.client-info-doc img{width:100%;max-height:330px;object-fit:contain;border-radius:10px;background:var(--card-3)}
+@media(max-width:390px){.client-docs-grid{grid-template-columns:1fr}}
+
+.legal-note{
+  margin-top:26px;padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.02);
+  border:1px solid var(--line);color:var(--muted-2);font-size:11.5px;line-height:1.6;
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.request-view-btn{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+}
+.request-count{
+  min-width:22px;height:22px;padding:0 7px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(47,109,246,.16);color:#8ab5ff;
+  font-size:11px;font-weight:900;border:1px solid rgba(47,109,246,.28);
+}
+.request-list{display:flex;flex-direction:column;gap:11px;margin-top:14px}
+.request-card{
+  position:relative;background:var(--card-2);border:1px solid var(--line);
+  border-radius:15px;padding:14px 48px 14px 14px;
+}
+.request-card .request-value{font-size:21px;font-weight:900;color:var(--green)}
+.request-card .request-meta{margin-top:7px;color:var(--muted);font-size:12px;line-height:1.55}
+.request-card .request-date{margin-top:10px;color:#c6ced9;font-size:12px;font-weight:800}
+.request-status{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.request-status.pending{color:#fbbf24}.request-status.accepted{color:#60a5fa}.request-status.rejected{color:#f87171}.request-status.completed{color:#4ade80}.request-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.request-actions .btn{min-height:42px}.request-actions .btn:disabled{opacity:.45;cursor:not-allowed}
+.request-delete{
+  position:absolute;right:10px;top:10px;width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.30);
+  color:#ff9b9b;font-size:19px;font-weight:900;
+}
+.request-empty{
+  padding:26px 14px;text-align:center;color:var(--muted);
+  border:1px dashed var(--line);border-radius:14px;margin-top:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     TELA DE ACESSO (CHAVE)
+     ============================================================ -->
+<div id="gate" role="dialog" aria-label="Acesso restrito">
+  <div class="logo-wrap"><img id="gateLogo" alt="Logo NX Empréstimos" /></div>
+  <h1>Digite a chave de acesso</h1>
+  <p class="sub">Área privada de gestão</p>
+  <div class="gate-box">
+    <input id="keyInput" class="key-input" type="tel" inputmode="numeric" maxlength="10" placeholder="••••••" autocomplete="off" aria-label="Chave de acesso" />
+    <div style="height:14px"></div>
+    <button class="btn btn-primary" id="btnEnter">ENTRAR</button>
+    <p id="keyErr" class="tiny hide" style="color:#ff8a8a;margin-top:12px;font-weight:600">Chave de acesso incorreta.</p>
+  </div>
+  <p class="legal">Ferramenta privada de gestão de empréstimos legais. Utilize somente dentro da legislação aplicável. Dados pessoais devem ser armazenados somente com autorização do cliente.</p>
+</div>
+
+<!-- indicador de sincronização -->
+<div id="sync" class="hide"><span class="dot"></span><span id="syncTxt">Conectando…</span></div>
+
+<!-- container de telas -->
+<main id="app" class="hide"></main>
+
+<!-- popups e notificações -->
+<div id="modalRoot"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* =========================================================================
+   NX EMPRÉSTIMOS — APLICAÇÃO
+   Arquivo único: HTML + CSS + JS. Persistência: Firestore + localStorage.
+   ========================================================================= */
+(function(){
+"use strict";
+
+/* ----------------------------------------------------------------
+   0. CONSTANTES E CONFIGURAÇÃO
+   ---------------------------------------------------------------- */
+const ACCESS_KEY   = atob("MzI0MTUw");        // chave não exposta em texto puro na tela
+const DAILY_LATE   = 20;                       // R$ por dia de atraso
+const LS = { auth:"nx_auth", clients:"nx_clients", loans:"nx_loans", hide:"nx_hide", alertDay:"nx_alert_day", alertDismissed:"nx_alert_dismissed", alertRead:"nx_alert_read", alertEvents:"nx_alert_events" };
+
+// Configuração do Firebase (projeto nx-emprestimo)
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPZXHKLBuMTF7qVQRjPTrOG-h7-WY8OE",             // <-- substitua pela apiKey do seu projeto
+  authDomain: "nx-emprestimo.firebaseapp.com",
+  projectId: "nx-emprestimo",
+  storageBucket: "nx-emprestimo.firebasestorage.app",
+  messagingSenderId: "333962862501",
+  appId: "1:333962862501:web:d9aa84544a901ede3f924c",
+  measurementId: "G-V7P2DZGMSW"
+};
+
+const LOGO_B64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRjdERkE1Ii8+PHN0b3Agb2Zmc2V0PSIuNDUiIHN0b3AtY29sb3I9IiNENEFGMzciLz4KPHN0b3Agb2Zmc2V0PSIuNyIgc3RvcC1jb2xvcj0iI0I4ODYwQiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0YxRDI3QiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+CjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMTk2IiBmaWxsPSIjMDUwNTA1Ii8+CjxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMTg4IiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZykiIHN0cm9rZS13aWR0aD0iNyIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIyMDAiIHI9IjE3MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9Ii41NSIvPgo8dGV4dCB4PSIyMDAiIHk9IjE5NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsJ1RpbWVzIE5ldyBSb21hbicsc2VyaWYiIGZvbnQtc2l6ZT0iMTMyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSJ1cmwoI2cpIiBsZXR0ZXItc3BhY2luZz0iNCI+Tlg8L3RleHQ+Cjx0ZXh0IHg9IjIwMCIgeT0iMjQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iSGVsdmV0aWNhLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9InVybCgjZykiIGxldHRlci1zcGFjaW5nPSI3Ij5FTVBSRVNUSU1PUzwvdGV4dD4KPGxpbmUgeDE9Ijk2IiB5MT0iMjcyIiB4Mj0iMzA0IiB5Mj0iMjcyIiBzdHJva2U9InVybCgjZykiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iLjciLz4KPHRleHQgeD0iMjAwIiB5PSIzMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJIZWx2ZXRpY2EsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNyIgZmlsbD0iI0U4RDlBOCIgb3BhY2l0eT0iLjkyIj5DcmVkaXRvIHJhcGlkbywgZmFjaWw8L3RleHQ+Cjx0ZXh0IHg9IjIwMCIgeT0iMzIyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iSGVsdmV0aWNhLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTciIGZpbGw9IiNFOEQ5QTgiIG9wYWNpdHk9Ii45MiI+ZSBzZW0gYnVyb2NyYWNpYTwvdGV4dD4KPC9zdmc+Cg==";
+
+/* ----------------------------------------------------------------
+   1. HELPERS BÁSICOS
+   ---------------------------------------------------------------- */
+const $  = (s, r) => (r||document).querySelector(s);
+const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
+const el = (tag, cls, html) => { const n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n; };
+
+/** Escapa texto do usuário antes de injetar em innerHTML (proteção XSS). */
+function esc(v){
+  if(v==null) return "";
+  return String(v).replace(/[&<>"'`]/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","`":"&#96;"
+  })[c]);
+}
+const uid = () => "id" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+/* -------- dinheiro -------- */
+const BRL = new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+function fmt(n){ return BRL.format(Number(n)||0); }
+/** Respeita o botão de ocultar valores. */
+function money(n){ return state.hideValues ? "R$ •••••" : fmt(n); }
+function num(n){ return state.hideValues ? "•••" : String(n); }
+
+/* -------- datas -------- */
+function todayISO(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parseISO(iso){ if(!iso) return null; const p=String(iso).split("-"); if(p.length<3) return null; return new Date(+p[0], +p[1]-1, +p[2]); }
+function fmtDate(iso){ const d=parseISO(iso); if(!d||isNaN(d)) return "—"; return d.toLocaleDateString("pt-BR"); }
+function fmtDateTime(ts){ if(!ts) return "—"; const d=new Date(ts); return d.toLocaleDateString("pt-BR")+" às "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}); }
+
+/* -------- máscaras -------- */
+function maskPhone(v){
+  const d=String(v||"").replace(/\D/g,"").slice(0,11);
+  if(d.length<=2) return d.length?"("+d:"";
+  if(d.length<=6) return "("+d.slice(0,2)+") "+d.slice(2);
+  if(d.length<=10) return "("+d.slice(0,2)+") "+d.slice(2,6)+"-"+d.slice(6);
+  return "("+d.slice(0,2)+") "+d.slice(2,7)+"-"+d.slice(7);
+}
+function maskCPF(v){
+  const d=String(v||"").replace(/\D/g,"").slice(0,11);
+  let o=d.slice(0,3);
+  if(d.length>3) o+="."+d.slice(3,6);
+  if(d.length>6) o+="."+d.slice(6,9);
+  if(d.length>9) o+="-"+d.slice(9,11);
+  return o;
+}
+/** Campo monetário brasileiro: usuário digita só números. */
+function maskMoney(v){
+  const d=String(v||"").replace(/\D/g,"").slice(0,12);
+  if(!d) return "";
+  return (parseInt(d,10)/100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function unmaskMoney(v){
+  const d=String(v||"").replace(/\D/g,"");
+  return d ? parseInt(d,10)/100 : 0;
+}
+
+/* ----------------------------------------------------------------
+   2. ESTADO GLOBAL
+   ---------------------------------------------------------------- */
+const state = { remoteNotifications:[],
+  allClients: [],
+  clients: [],
+  loans: [],
+  allLoans: [],
+  loanRequests: [],
+  hideValues: localStorage.getItem(LS.hide) === "1",
+  route: { name:"home", id:null, extra:null },
+  fbReady: false,
+  today: todayISO()
+};
+
+/* ----------------------------------------------------------------
+   FILTRO INICIAL DO PAINEL — somente os clientes solicitados
+   ---------------------------------------------------------------- */
+const PANEL_CLIENT_NAMES = [
+  "leonardo henrique ferreira de faria",
+  "bruno eduardo de arruda",
+  "andre viana",
+  "renan oliveira"
+];
+function normalizePanelName(v){
+  return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toLowerCase();
+}
+const PANEL_NEW_CLIENTS_KEY = "nx_panel_new_clients";
+function getPanelNewClientIds(){
+  try{ return new Set(JSON.parse(localStorage.getItem(PANEL_NEW_CLIENTS_KEY)||"[]")||[]); }catch(e){ return new Set(); }
+}
+function rememberPanelNewClient(id){
+  if(!id) return;
+  try{
+    const ids=getPanelNewClientIds();
+    ids.add(String(id));
+    localStorage.setItem(PANEL_NEW_CLIENTS_KEY, JSON.stringify(Array.from(ids)));
+  }catch(e){}
+}
+function isPanelClient(c){
+  const n=normalizePanelName(c && c.name);
+  const id=String(c && c.id || '');
+  const hasRequest = state.loanRequests.some(r=>{
+    const rid=String(r && (r.clientId || r.clientID || r.client_id) || '');
+    return rid===id;
+  });
+  const hasNewClientNotification = (state.remoteNotifications||[]).some(notif=>{
+    if((notif.type||'')!=='newclient') return false;
+    const nid=String(notif.clientId || notif.clientID || notif.client_id || '');
+    if(nid && nid===id) return true;
+    const txt=normalizePanelName((notif.title||'')+' '+(notif.text||''));
+    return !!n && txt.includes(n);
+  });
+  return PANEL_CLIENT_NAMES.includes(n)
+    || getPanelNewClientIds().has(id)
+    || c && c.panelVisible === true
+    || hasRequest
+    || hasNewClientNotification;
+}
+function filterPanelClients(rows){
+  return (Array.isArray(rows)?rows:[]).filter(isPanelClient);
+}
+function refreshPanelClients(){
+  state.clients = filterPanelClients(state.allClients);
+  state.loans = filterPanelLoans(state.allLoans || state.loans, state.clients);
+  saveLocal();
+  render();
+  maybeShowDailyNotifications();
+}
+function filterPanelLoans(rows, clients){
+  const ids=new Set((clients||[]).map(c=>c.id));
+  return (Array.isArray(rows)?rows:[]).filter(l=>ids.has(l.clientId));
+}
+function panelClientName(id){
+  const c=state.clients.find(x=>x.id===id);
+  return normalizePanelName(c && c.name);
+}
+function isJeanRibeiroSpecificLoan(l){
+  const client = (state.allClients || state.clients || []).find(c => c.id === l.clientId);
+  const name = String(client?.name || l.clientName || '').trim().toLowerCase().replace(/\s+/g,' ');
+  if(name !== 'jean ribeiro' || l.status !== 'paid') return false;
+  const principal = Number(l.principal) || 0;
+  const total = Number(l.paidTotal ?? l.totalBase ?? l.total) || 0;
+  const rate = Number(l.ratePct) || 0;
+  const due = String(l.dueDate || '').trim();
+  if(Math.abs(principal - 0.01) > 0.00001 || Math.abs(total - 0.01) > 0.00001 || Math.abs(rate) > 0.00001) return false;
+  if(!(due === '2026-09-24' || due === '24/09/2026' || due.includes('2026-09-24'))) return false;
+  const paid = Number(l.paidAt) || Date.parse(l.paidAt || '') || 0;
+  if(!paid) return false;
+  const d = new Date(paid);
+  return d.getFullYear() === 2026 && d.getMonth() === 8 && d.getDate() === 9;
+}
+
+function panelDisplayLoans(cid){
+  let ls=state.loans.filter(l=>l.clientId===cid);
+  // Oculta somente o registro específico de Jean Ribeiro solicitado pelo usuário.
+  // Os dados, fotos e demais informações permanecem intactos no armazenamento.
+  ls=ls.filter(l=>!isJeanRibeiroSpecificLoan(l));
+  const name=panelClientName(cid);
+  // Leonardo: no painel, o pagamento deve aparecer somente como R$ 260,00, sem atraso.
+  if(name==="leonardo henrique ferreira de faria"){
+    ls=ls.map(l=>l.status==="paid" ? Object.assign({},l,{paidTotal:260,paidLateFees:0,paidDaysLate:0}) : l);
+  }
+  // Bruno: remover somente o registro antigo de R$ 1.110,00.
+  // O outro registro abaixo permanece exatamente como está no banco.
+  if(name==="bruno eduardo de arruda"){
+    ls=ls.filter(l=>{
+      const paid=Number(l.paidTotal)||0;
+      const principal=Number(l.principal)||0;
+      return !(l.status==="paid" && (paid===1110 || principal===185));
+    });
+  }
+  return ls;
+}
+function panelPaidLoans(cid, ls){
+  let paids=(ls||[]).filter(l=>l.status==="paid").sort((a,b)=>(b.paidAt||0)-(a.paidAt||0));
+  // Leonardo: manter somente o registro de R$ 260,00 e ocultar diárias/dias de atraso.
+  if(panelClientName(cid)==="leonardo henrique ferreira de faria" && paids.length){
+    return [Object.assign({},paids[0],{paidTotal:260,paidLateFees:0,paidDaysLate:0})];
+  }
+  return paids;
+}
+
+/* ----------------------------------------------------------------
+   3. PERSISTÊNCIA LOCAL (localStorage) — cache offline
+   ---------------------------------------------------------------- */
+function loadLocal(){
+  try{ state.allClients = JSON.parse(localStorage.getItem(LS.clients) || "[]") || []; state.clients = filterPanelClients(state.allClients); }catch(e){ state.allClients=[]; state.clients=[]; }
+  try{ state.allLoans = JSON.parse(localStorage.getItem(LS.loans) || "[]") || []; }catch(e){ state.allLoans=[]; }
+  state.allLoans = (state.allLoans||[]).map(normalizeLoan);
+  state.loans = filterPanelLoans(state.allLoans, state.clients);
+}
+function saveLocal(){
+  try{
+    localStorage.setItem(LS.clients, JSON.stringify(state.allClients.length ? state.allClients : state.clients));
+    localStorage.setItem(LS.loans, JSON.stringify(state.allLoans || state.loans));
+  }catch(e){
+    console.log("[v0] Falha ao salvar no localStorage:", e.message);
+    setSync("error","Cache local cheio");
+  }
+}
+
+/* ----------------------------------------------------------------
+   4. FIREBASE (Firestore) — importação dinâmica por CDN
+   ---------------------------------------------------------------- */
+const FB = { app:null, db:null, fns:null, ok:false, pending:0 };
+
+async function initFirebase(){
+  setSync("connecting","Conectando…");
+  if(!firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf("COLE_AQUI") === 0){
+    setSync("error","Modo local (sem API key)");
+    return;
+  }
+  try{
+    const V = "https://www.gstatic.com/firebasejs/10.12.5/";
+    const [appMod, fsMod] = await Promise.all([
+      import(V+"firebase-app.js"),
+      import(V+"firebase-firestore.js")
+    ]);
+    FB.app = appMod.initializeApp(firebaseConfig);
+    FB.db  = fsMod.getFirestore(FB.app);
+    FB.fns = fsMod;
+    FB.ok  = true;
+    state.fbReady = true;
+
+    // Importa automaticamente os clientes da versão antiga,
+    // que eram salvos em nx_app/principal/clientes com empréstimos dentro de debts.
+    await migrateLegacyData();
+
+    // Escuta em tempo real as coleções da versão atual.
+    listen("clients", rows => { state.allClients = rows; refreshPanelClients(); });
+    listen("loans",   rows => { state.allLoans = rows.map(normalizeLoan); state.loans = filterPanelLoans(state.allLoans, state.clients); saveLocal(); render(); maybeShowDailyNotifications(); });
+    listen("loanRequests", rows => { state.loanRequests = rows.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)); refreshPanelClients(); });
+    listen("notifications", rows => {
+      state.remoteNotifications = rows.map(n=>({id:"remote:"+n.id,type:n.type||"newclient",title:n.title||"Novo cliente cadastrado",text:n.text||"",clientId:n.clientId||n.clientID||n.client_id||"",name:n.name||n.clientName||n.client_name||"",createdAt:n.createdAt||Date.now()}));
+      refreshPanelClients();
+    });
+
+    setSync("synced","Sincronizado", 2000);
+  }catch(err){
+    console.log("[v0] Erro ao iniciar Firebase:", err && err.message);
+    setSync("error","Sem conexão — dados locais");
+  }
+}
+
+function listen(col, cb){
+  try{
+    const { collection, onSnapshot } = FB.fns;
+    onSnapshot(collection(FB.db, col),
+      snap => {
+        const rows=snap.docs.map(d => Object.assign({id:d.id}, d.data()))
+          .sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0));
+        cb(rows);
+      },
+      err => { console.log("[v0] onSnapshot erro:", err.message); setSync("error","Erro de sincronização"); }
+    );
+  }catch(e){ console.log("[v0] listen falhou:", e.message); }
+}
+
+async function migrateLegacyData(){
+  try{
+    const { collection, getDocs, doc, setDoc } = FB.fns;
+    const legacySnap = await getDocs(collection(FB.db,"nx_app","principal","clientes"));
+    if(legacySnap.empty) return;
+
+    const currentClients = await getDocs(collection(FB.db,"clients"));
+    const currentLoans = await getDocs(collection(FB.db,"loans"));
+    const clientIds = new Set(currentClients.docs.map(d=>d.id));
+    const loanIds = new Set(currentLoans.docs.map(d=>d.id));
+    let imported = 0;
+
+    for(const legacyDoc of legacySnap.docs){
+      const old = legacyDoc.data() || {};
+      const clientId = String(old.id || legacyDoc.id);
+      const client = {
+        id:clientId,
+        name:old.name || old.nome || "Sem nome",
+        phone:old.phone || old.whatsapp || "",
+        phone2:old.phone2 || old.contato2 || "",
+        cpf:old.cpf || "",
+        address:old.address || old.endereco || "",
+        email:old.email || "",
+        notes:old.notes || old.obs || "",
+        photo:old.photo || "",
+        createdAt:Number(old.createdAt)||Date.now(),
+        updatedAt:Date.now()
+      };
+      if(!clientIds.has(clientId)){
+        const data=Object.assign({},client);delete data.id;
+        await setDoc(doc(FB.db,"clients",clientId),data,{merge:true});
+        clientIds.add(clientId);imported++;
+      }
+
+      const debts = Array.isArray(old.debts) ? old.debts : [];
+      for(const debt of debts){
+        const loanId = String(debt.id || uid());
+        if(loanIds.has(loanId)) continue;
+        const principal = Number(debt.principal)||0;
+        const oldTotal = Number(debt.totalBase || debt.total)||principal;
+        const ratePct = principal>0 ? Math.max(0,((oldTotal-principal)/principal)*100) : 0;
+        const paidAtRaw = debt.paidAt;
+        const paidAt = paidAtRaw ? (typeof paidAtRaw==="number" ? paidAtRaw : Date.parse(paidAtRaw)||Date.now()) : null;
+        const extras = Array.isArray(debt.extraProofs) ? debt.extraProofs.filter(Boolean) : [];
+        if(debt.proof3) extras.unshift(debt.proof3);
+        const loan = normalizeLoan({
+          id:loanId, clientId,
+          principal, ratePct,
+          dueDate:debt.dueDate || debt.date || "",
+          note:debt.note || debt.obs || "",
+          proof1:debt.proof1 || debt.proof || "",
+          proof2:debt.proof2 || "",
+          extraProofs:extras,
+          status:debt.status==="paid" ? "paid" : "active",
+          paidAt,
+          paidTotal:Number(debt.paidTotal)||Number(debt.total)||0,
+          paidDaysLate:Number(debt.paidDaysLate)||0,
+          createdAt:Number(debt.createdAt)||Date.now(),
+          updatedAt:Date.now()
+        });
+        const data=Object.assign({},loan);delete data.id;
+        await setDoc(doc(FB.db,"loans",loanId),data,{merge:true});
+        loanIds.add(loanId);imported++;
+      }
+    }
+    if(imported) toast(imported+" registro"+(imported===1?" importado":"s importados")+" do Firebase antigo","ok");
+  }catch(e){
+    console.log("[v0] Migração antiga não realizada:",e.message);
+  }
+}
+
+async function fbSet(col, obj){
+  if(!FB.ok) return false;
+  try{
+    FB.pending++; setSync("saving","Salvando…");
+    const { doc, setDoc } = FB.fns;
+    const data = Object.assign({}, obj); delete data.id;
+    await setDoc(doc(FB.db, col, obj.id), data, {merge:true});
+    FB.pending--;
+    if(FB.pending<=0){ FB.pending=0; setSync("synced","Sincronizado",2000); }
+    return true;
+  }catch(e){
+    FB.pending=0;
+    console.log("[v0] Erro ao salvar no Firestore:", e.message);
+    setSync("error","Falha ao salvar na nuvem");
+    return false;
+  }
+}
+async function fbDel(col, id){
+  if(!FB.ok) return false;
+  try{
+    setSync("saving","Salvando…");
+    const { doc, deleteDoc } = FB.fns;
+    await deleteDoc(doc(FB.db, col, id));
+    setSync("synced","Sincronizado",2000);
+    return true;
+  }catch(e){
+    console.log("[v0] Erro ao excluir no Firestore:", e.message);
+    setSync("error","Falha ao excluir na nuvem");
+    return false;
+  }
+}
+
+/* indicador de sincronização */
+let syncTimer=null;
+function setSync(kind, text, autoHide){
+  const box=$("#sync"), txt=$("#syncTxt");
+  if(!box) return;
+  clearTimeout(syncTimer);
+  box.className = kind;
+  box.classList.remove("hide");
+  txt.textContent = text;
+  if(autoHide) syncTimer = setTimeout(()=> box.classList.add("hide"), autoHide);
+}
+
+/* reconectar quando a internet voltar */
+window.addEventListener("online", ()=>{
+  if(FB.ok){ setSync("saving","Sincronizando…"); pushAllToCloud().then(()=> setSync("synced","Sincronizado",2000)); }
+  else initFirebase();
+});
+
+async function pushAllToCloud(){
+  if(!FB.ok) return;
+  for(const c of state.allClients || state.clients) await fbSet("clients", c);
+  for(const l of state.allLoans || state.loans) await fbSet("loans", l);
+  toast("Dados sincronizados","ok");
+}
+
+/* ----------------------------------------------------------------
+   5. IMAGENS — compressão para Base64 (limite do Firestore ~1MB/doc)
+   ---------------------------------------------------------------- */
+const MAX_BYTES = 700 * 1024; // margem segura por imagem
+
+function compressImage(file){
+  return new Promise((resolve, reject)=>{
+    if(!file) return reject(new Error("Nenhum arquivo"));
+    if(!/^image\//.test(file.type)) return reject(new Error("O arquivo selecionado não é uma imagem."));
+    const reader = new FileReader();
+    reader.onerror = ()=> reject(new Error("Não foi possível ler a imagem."));
+    reader.onload = () => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onerror = ()=> reject(new Error("Imagem inválida."));
+      img.onload = () => {
+        let maxSide = 900, quality = 0.70, out = "";
+        for(let attempt=0; attempt<6; attempt++){
+          const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+          const w = Math.max(1, Math.round(img.width*scale));
+          const h = Math.max(1, Math.round(img.height*scale));
+          const cv = document.createElement("canvas");
+          cv.width = w; cv.height = h;
+          const ctx = cv.getContext("2d");
+          ctx.fillStyle = "#0b0d10"; ctx.fillRect(0,0,w,h);
+          ctx.drawImage(img,0,0,w,h);
+          out = cv.toDataURL("image/jpeg", quality);
+          // tamanho aproximado em bytes do base64
+          const bytes = Math.ceil((out.length - out.indexOf(",") - 1) * 3/4);
+          if(bytes <= MAX_BYTES) return resolve(out);
+          // ainda grande: reduz de novo
+          quality = Math.max(0.45, quality - 0.08);
+          maxSide = Math.round(maxSide * 0.82);
+        }
+        const bytes = Math.ceil(out.length*3/4);
+        if(bytes > 950*1024) return reject(new Error("Esta foto é muito grande mesmo após a compressão. Tente outra imagem."));
+        resolve(out);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ----------------------------------------------------------------
+   6. REGRAS DE NEGÓCIO — juros, atraso e totais
+   ---------------------------------------------------------------- */
+/** Garante compatibilidade com registros antigos (proof3 -> extraProofs). */
+function normalizeLoan(l){
+  const o = Object.assign({}, l);
+  o.principal = Number(o.principal)||0;
+  o.extraProofs = Array.isArray(o.extraProofs) ? o.extraProofs.slice() : [];
+  if(o.proof3){ o.extraProofs.unshift(o.proof3); delete o.proof3; }
+  // percentual: se não existir, deduz a partir do total salvo
+  if(o.ratePct == null || o.ratePct === ""){
+    const totalBase = Number(o.totalBase || o.total || 0);
+    o.ratePct = o.principal > 0 ? ((totalBase - o.principal) / o.principal) * 100 : 0;
+  }
+  o.ratePct = Number(o.ratePct)||0;
+  o.interest = round2(o.principal * o.ratePct / 100);
+  o.totalBase = round2(o.principal + o.interest);
+  o.status = o.status === "paid" ? "paid" : "active";
+  return o;
+}
+function round2(n){ return Math.round((Number(n)||0)*100)/100; }
+
+/** Dias completos de atraso (não cobra no próprio dia do vencimento). */
+function daysLate(dueISO){
+  const due = parseISO(dueISO);
+  if(!due || isNaN(due)) return 0;
+  const now = new Date();
+  const a = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const b = new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime();
+  const diff = Math.floor((a-b) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+function loanCalc(l){
+  const dl = l.status === "paid" ? (Number(l.paidDaysLate)||0) : daysLate(l.dueDate);
+  const lateFees = round2(dl * DAILY_LATE);
+  const current = l.status === "paid"
+    ? round2(Number(l.paidTotal) || (l.totalBase + lateFees))
+    : round2(l.totalBase + lateFees);
+  return { daysLate: dl, lateFees, current };
+}
+
+/* totais gerais */
+function totals(){
+  // Os totais do painel usam os mesmos registros já ajustados para exibição.
+  const visible = state.clients.flatMap(c=>panelDisplayLoans(c.id));
+  const active = visible.filter(l=>l.status!=="paid");
+  const paid   = visible.filter(l=>l.status==="paid");
+  let receivable=0, lent=0, interest=0, received=0;
+  visible.forEach(l=>{ lent += Number(l.principal)||0; interest += Number(l.interest)||0; });
+  active.forEach(l=> receivable += loanCalc(l).current);
+  paid.forEach(l=> received += (Number(l.paidTotal) || loanCalc(l).current));
+  return {
+    receivable:round2(receivable), lent:round2(lent), interest:round2(interest), received:round2(received),
+    clients: state.clients.length, active: active.length, paid: paid.length
+  };
+}
+function clientLoans(cid){ return panelDisplayLoans(cid); }
+function clientTotals(cid){
+  const ls = clientLoans(cid);
+  const act = ls.filter(l=>l.status!=="paid");
+  let open=0, receivable=0, lent=0, interest=0;
+  ls.forEach(l=>{ lent+=l.principal; interest+=l.interest; });
+  act.forEach(l=>{ open+=l.principal; receivable+=loanCalc(l).current; });
+  return { open:round2(open), receivable:round2(receivable), lent:round2(lent), interest:round2(interest),
+           pending:act.length, done:ls.length-act.length };
+}
+
+function daysUntil(dueISO){
+  const due=parseISO(dueISO);
+  if(!due||isNaN(due)) return null;
+  const now=new Date();
+  const a=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  const b=new Date(due.getFullYear(),due.getMonth(),due.getDate()).getTime();
+  return Math.round((b-a)/86400000);
+}
+function loadAlertSet(key){
+  try{
+    const arr=JSON.parse(localStorage.getItem(key)||"[]");
+    return new Set(Array.isArray(arr)?arr:[]);
+  }catch(e){ return new Set(); }
+}
+function saveAlertSet(key,set){
+  localStorage.setItem(key,JSON.stringify(Array.from(set)));
+}
+function loadAlertEvents(){
+  try{
+    const arr=JSON.parse(localStorage.getItem(LS.alertEvents)||"[]");
+    return Array.isArray(arr)?arr:[];
+  }catch(e){ return []; }
+}
+function saveAlertEvents(arr){
+  localStorage.setItem(LS.alertEvents,JSON.stringify(arr.slice(-200)));
+}
+function addAlertEvent(event){
+  const events=loadAlertEvents();
+  if(events.some(e=>e.id===event.id)) return;
+  events.push(event);
+  saveAlertEvents(events);
+}
+
+function rawAppAlerts(){
+  const alerts=loadAlertEvents().map(e=>Object.assign({},e)).concat((state.remoteNotifications||[]).map(e=>Object.assign({},e)));
+  state.loans.filter(l=>l.status!=="paid").forEach(l=>{
+    const client=state.clients.find(c=>c.id===l.clientId);
+    const name=client?.name||"Cliente";
+    const calc=loanCalc(l);
+    const until=daysUntil(l.dueDate);
+    if(calc.daysLate>0){
+      alerts.push({
+        id:"late:"+l.id+":"+calc.daysLate,
+        type:"late",
+        title:name+" está atrasado",
+        text:"Atrasado há "+calc.daysLate+" dia"+(calc.daysLate===1?"":"s")+". Total atualizado: "+fmt(calc.current)+".",
+        loanId:l.id, clientId:l.clientId
+      });
+    }else if(until===0){
+      alerts.push({
+        id:"today:"+l.id+":"+todayISO(),
+        type:"today",
+        title:"Pagamento vence hoje",
+        text:name+" deve pagar "+fmt(calc.current)+" hoje.",
+        loanId:l.id, clientId:l.clientId
+      });
+    }else if(until===1){
+      alerts.push({
+        id:"tomorrow:"+l.id+":"+l.dueDate,
+        type:"tomorrow",
+        title:"Pagamento vence amanhã",
+        text:name+" deve pagar "+fmt(calc.current)+" amanhã.",
+        loanId:l.id, clientId:l.clientId
+      });
+    }
+  });
+  const order={late:0,today:1,tomorrow:2,newclient:3,newloan:4};
+  return alerts.sort((a,b)=>(order[a.type]??9)-(order[b.type]??9) || (Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+}
+function appAlerts(){
+  const dismissed=loadAlertSet(LS.alertDismissed);
+  return rawAppAlerts().filter(a=>!dismissed.has(a.id));
+}
+function unreadAlertCount(){
+  const read=loadAlertSet(LS.alertRead);
+  return appAlerts().filter(a=>!read.has(a.id)).length;
+}
+function dismissAlert(id){
+  const dismissed=loadAlertSet(LS.alertDismissed);
+  dismissed.add(id);
+  saveAlertSet(LS.alertDismissed,dismissed);
+  const read=loadAlertSet(LS.alertRead);
+  read.delete(id);
+  saveAlertSet(LS.alertRead,read);
+}
+function clearCurrentAlerts(){
+  const dismissed=loadAlertSet(LS.alertDismissed);
+  appAlerts().forEach(a=>dismissed.add(a.id));
+  saveAlertSet(LS.alertDismissed,dismissed);
+  render();
+  toast("Notificações limpas","ok");
+}
+function markAllAlertsRead(){
+  const read=loadAlertSet(LS.alertRead);
+  appAlerts().forEach(a=>read.add(a.id));
+  saveAlertSet(LS.alertRead,read);
+}
+function updateBellCounter(){
+  const bell=document.querySelector('[data-act="notifications"]');
+  if(!bell)return;
+  let badge=bell.querySelector(".bell-badge");
+  const count=unreadAlertCount();
+  if(count){
+    if(!badge){
+      badge=document.createElement("span");
+      badge.className="bell-badge";
+      bell.appendChild(badge);
+    }
+    badge.textContent=Math.min(count,99);
+  }else if(badge){
+    badge.remove();
+  }
+}
+
+function showAppNotifications(initialMode="unread"){
+  let mode=initialMode;
+  const shell=
+    '<div class="alert-actions">'+
+      '<button class="alert-action" data-alert-unread>✓ Marcar todas como lidas</button>'+
+      '<button class="alert-action" data-alert-read-list>✓ Notificações lidas</button>'+
+    '</div>'+
+    '<div data-alert-content></div>';
+
+  const ov=popup({title:"Notificações",html:shell,actions:[{label:"Fechar"}]});
+  ov.style.alignItems="flex-start";
+  ov.style.paddingTop="10px";
+
+  const modal=ov.querySelector(".modal");
+  if(modal){
+    modal.style.marginBottom="0";
+    modal.style.maxHeight="calc(100vh - 20px)";
+  }
+
+  const content=ov.querySelector("[data-alert-content]");
+  const unreadBtn=ov.querySelector("[data-alert-unread]");
+  const readBtn=ov.querySelector("[data-alert-read-list]");
+
+  function draw(nextMode=mode){
+    mode=nextMode;
+    const alerts=appAlerts();
+    const read=loadAlertSet(LS.alertRead);
+    const visible=alerts.filter(a=>mode==="read" ? read.has(a.id) : !read.has(a.id));
+
+    unreadBtn.classList.toggle("active",mode==="unread");
+    readBtn.classList.toggle("active",mode==="read");
+
+    const emptyText=mode==="read"
+      ? "Nenhuma notificação lida."
+      : "Nenhuma notificação nova.";
+
+    content.innerHTML=visible.length
+      ? '<div class="alert-list">'+visible.map(a=>
+          '<div class="alert-item '+a.type+'" data-alert-row="'+esc(a.id)+'">'+
+            '<button class="grow row" style="align-items:flex-start;text-align:left;gap:11px" data-alert-client="'+esc(a.clientId||"")+'" data-alert-id="'+esc(a.id)+'">'+
+              '<span class="alert-dot"></span>'+
+              '<span class="grow"><div class="alert-title">'+esc(a.title)+'</div><div class="alert-text">'+esc(a.text)+'</div></span>'+
+            '</button>'+
+            '<button class="alert-close" data-alert-delete="'+esc(a.id)+'" aria-label="Apagar notificação">×</button>'+
+          '</div>'
+        ).join('')+'</div>'
+      : '<div class="empty" style="margin-top:14px">'+emptyText+'</div>';
+
+    content.querySelectorAll("[data-alert-client]").forEach(btn=>{
+      btn.onclick=()=>{
+        const id=btn.dataset.alertId;
+        const readSet=loadAlertSet(LS.alertRead);
+        readSet.add(id);
+        saveAlertSet(LS.alertRead,readSet);
+        updateBellCounter();
+        const cid=btn.dataset.alertClient;
+        if(cid){
+          ov.remove();
+          go("client",cid);
+        }else{
+          draw("read");
+        }
+      };
+    });
+
+    content.querySelectorAll("[data-alert-delete]").forEach(btn=>{
+      btn.onclick=e=>{
+        e.stopPropagation();
+        dismissAlert(btn.dataset.alertDelete);
+        updateBellCounter();
+        draw(mode);
+      };
+    });
+  }
+
+  unreadBtn.onclick=()=>{
+    if(mode==="read"){
+      draw("unread");
+      return;
+    }
+    markAllAlertsRead();
+    updateBellCounter();
+    draw("unread");
+  };
+
+  readBtn.onclick=()=>draw(mode==="read" ? "unread" : "read");
+
+  draw(mode);
+}
+
+function maybeShowDailyNotifications(){
+  const alerts=appAlerts();
+  if(!alerts.length) return;
+  const today=todayISO();
+  if(localStorage.getItem(LS.alertDay)===today) return;
+  localStorage.setItem(LS.alertDay,today);
+  setTimeout(showAppNotifications,500);
+}
+
+
+/* ----------------------------------------------------------------
+   7. POPUPS, SHEETS E TOASTS (sem alert/confirm nativos)
+   ---------------------------------------------------------------- */
+function closeModal(){
+  const r=$("#modalRoot");
+  const ov=r.lastElementChild;
+  if(ov) ov.remove();
+}
+function openOverlay(buildInner){
+  const ov = el("div","overlay");
+  const mo = el("div","modal");
+  ov.appendChild(mo);
+  ov.addEventListener("click", e => { if(e.target===ov) ov.remove(); });
+  buildInner(mo, ()=> ov.remove());
+  $("#modalRoot").appendChild(ov);
+  return ov;
+}
+/** Popup de aviso / confirmação. */
+function popup(opts){
+  return openOverlay((mo, close)=>{
+    mo.innerHTML =
+      '<h3>'+esc(opts.title||"Aviso")+'</h3>'+
+      '<div class="mbody">'+(opts.html || esc(opts.text||""))+'</div>';
+    const acts = el("div","macts");
+    (opts.actions || [{label:"OK"}]).forEach(a=>{
+      const b = el("button","btn "+(a.cls||"btn-ghost"), esc(a.label));
+      b.onclick = ()=>{ close(); if(a.onClick) a.onClick(); };
+      acts.appendChild(b);
+    });
+    mo.appendChild(acts);
+  });
+}
+/** Menu inferior de opções (três pontinhos). */
+function sheet(title, items){
+  return openOverlay((mo, close)=>{
+    mo.innerHTML = '<h3>'+esc(title)+'</h3>';
+    const wrap = el("div","macts");
+    items.forEach(it=>{
+      const b = el("button","sheet-item "+(it.cls||""), (it.icon||"")+"<span>"+esc(it.label)+"</span>");
+      b.onclick = ()=>{ close(); if(it.onClick) it.onClick(); };
+      wrap.appendChild(b);
+    });
+    mo.appendChild(wrap);
+  });
+}
+function toast(msg, kind){
+  const t = el("div","toast "+(kind||""), esc(msg));
+  $("#toasts").appendChild(t);
+  setTimeout(()=>{ t.style.transition="opacity .3s,transform .3s"; t.style.opacity="0"; t.style.transform="translateY(10px)"; setTimeout(()=>t.remove(),300); }, 2600);
+}
+
+/* ----------------------------------------------------------------
+   8. ÍCONES (SVG inline)
+   ---------------------------------------------------------------- */
+const IC = {
+  eye:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.3 4.1M6.3 6.4A17 17 0 0 0 2 12s3.6 7 10 7a9.8 9.8 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+  back:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f2f4f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  close:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#f2f4f7" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  dots:'<svg width="18" height="18" viewBox="0 0 24 24" fill="#9aa3af"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
+  userPlus:'<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>',
+  cash:'<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
+  info:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>',
+  edit:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff8a8a" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
+  undo:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 0 2.1-5.6L3 10"/></svg>',
+  db:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
+  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04220f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  plus:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  bell:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>'
+};
+
+/* ----------------------------------------------------------------
+   9. NAVEGAÇÃO
+   ---------------------------------------------------------------- */
+function go(name, id, extra){
+  state.route = { name, id:id||null, extra:extra||null };
+  window.scrollTo({top:0,behavior:"instant"});
+  render();
+}
+
+/* ----------------------------------------------------------------
+   10. RENDER — roteador principal
+   ---------------------------------------------------------------- */
+function render(){
+  const app = $("#app");
+  if(app.classList.contains("hide")) return;
+  const r = state.route;
+  let html = "";
+  if(r.name==="home")           html = viewHome();
+  else if(r.name==="client")    html = viewClient(r.id);
+  else if(r.name==="clientForm")html = viewClientForm(r.id);
+  else if(r.name==="loanForm")  html = viewLoanForm(r.id, r.extra);
+  else if(r.name==="proofs")    html = viewProofs(r.id);
+  else if(r.name==="activeLoans") html = viewActiveLoans();
+  else html = viewHome();
+  app.innerHTML = html;
+  bind();
+  startClock();
+  requestAnimationFrame(applyValueVisibility);
+}
+
+/* ---------- cabeçalho reutilizável ---------- */
+function headerHTML(){
+  const h = new Date().getHours();
+  const greet = (h>=5 && h<12) ? "Bom dia!" : (h>=12 && h<18) ? "Boa tarde!" : "Boa noite!";
+  return ''+
+  '<header class="topbar">'+
+    '<div class="avatar" aria-hidden="true">N</div>'+
+    '<div class="grow">'+
+      '<div class="hello">Olá, NICOLAS</div>'+
+      '<div class="greet">'+greet+'</div>'+
+    '</div>'+
+    '<div class="clock" id="clock" aria-label="Relógio">--:--:--</div>'+
+    '<button class="bell-btn" data-act="notifications" aria-label="Ver notificações">'+IC.bell+
+      (unreadAlertCount()?'<span class="bell-badge">'+Math.min(unreadAlertCount(),99)+'</span>':'')+
+    '</button>'+
+    '<button class="eye-btn" data-act="toggle-eye" aria-label="Ocultar ou mostrar valores">'+(state.hideValues?IC.eyeOff:IC.eye)+'</button>'+
+  '</header>';
+}
+function navHTML(title, backTo, rightHTML){
+  return ''+
+  '<div class="navbar">'+
+    '<button class="icon-btn" data-act="nav-back" data-to="'+esc(backTo||"home")+'" aria-label="Voltar">'+IC.back+'</button>'+
+    '<h2 class="grow truncate">'+esc(title)+'</h2>'+
+    (rightHTML||"")+
+  '</div>';
+}
+
+/* ---------- TELA INICIAL ---------- */
+function viewHome(){
+  const t = totals();
+  const list = state.clients.length
+    ? '<div id="clientResults">'+state.clients.map(clientCardHTML).join("")+'</div><div id="searchEmpty" class="empty hide">Nenhum cliente encontrado.</div>'
+    : '<div class="empty"><div style="font-size:15px;font-weight:700;color:#f2f4f7;margin-bottom:6px">Nenhum cliente ainda</div>Cadastre o primeiro cliente para começar sua carteira.</div>';
+
+  return '<div class="screen">'+
+    headerHTML()+
+
+    /* painel financeiro */
+    '<section class="hero">'+
+      '<div class="label">Total a receber agora</div>'+
+      '<div class="big">'+money(t.receivable)+'</div>'+
+      '<div class="hero-split">'+
+        '<div class="mini"><div class="k">Total já emprestado</div><div class="v v-amber">'+money(t.lent)+'</div></div>'+
+        '<div class="mini"><div class="k">Juros cobrados</div><div class="v v-blue">'+money(t.interest)+'</div></div>'+
+        '<div class="mini"><div class="k">Total já recebido</div><div class="v v-green">'+money(t.received)+'</div></div>'+
+        '<div class="mini"><div class="k">Clientes</div><div class="v v-text">'+num(t.clients)+'</div></div>'+
+      '</div>'+
+    '</section>'+
+
+    '<div class="stats">'+
+      '<button class="stat" data-act="active-loans" aria-label="Ver empréstimos ativos"><div class="n v-amber">'+num(t.active)+'</div><div class="t">Empréstimos ativos</div></button>'+
+      '<div class="stat"><div class="n v-green">'+num(t.paid)+'</div><div class="t">Pagamentos concluídos</div></div>'+
+      '<div class="stat"><div class="n v-text">'+num(t.clients)+'</div><div class="t">Clientes na carteira</div></div>'+
+    '</div>'+
+
+    /* ações rápidas */
+    '<div class="quick">'+
+      '<button class="qcard" data-act="new-client"><span class="qicon blue">'+IC.userPlus+'</span><span class="qt">Novo cliente</span><span class="qs">Cadastrar na carteira</span></button>'+
+      '<button class="qcard" data-act="new-loan"><span class="qicon green">'+IC.cash+'</span><span class="qt">Adicionar valor</span><span class="qs">Registrar empréstimo</span></button>'+
+    '</div>'+
+
+    /* pesquisa e clientes */
+    (state.clients.length
+      ? '<div class="client-search">'+
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'+
+          '<input id="clientSearch" type="search" inputmode="search" autocomplete="off" placeholder="Pesquisar por nome, CPF ou telefone">'+
+        '</div>'
+      : '')+
+    '<div class="sec-head"><span class="sec-title">Carteira de clientes</span><span class="badge">'+state.clients.length+'</span></div>'+
+    list+
+
+    '<p class="legal-note">Uso privado. Este sistema destina-se exclusivamente à gestão de empréstimos legais, dentro da legislação aplicável. Dados pessoais devem ser armazenados somente com autorização do cliente.</p>'+
+  '</div>';
+}
+
+function clientCardHTML(c){
+  const ct = clientTotals(c.id);
+  const hasLate = clientLoans(c.id).some(l=>l.status!=="paid" && daysLate(l.dueDate)>0);
+  const ph = c.photo
+    ? '<span class="ph"><img src="'+esc(c.photo)+'" alt="Foto de '+esc(c.name)+'"></span>'
+    : '<span class="ph">'+esc((c.name||"?").trim().charAt(0).toUpperCase())+'</span>';
+  // Índice de pesquisa: nome, CPF e telefones.
+  // Mantém uma versão normalizada e outra somente com números,
+  // para encontrar tanto "João Silva" quanto CPF/telefone com máscara.
+  const nameSearch = String(c.name||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  const cpfSearch = String(c.cpf||"").toLowerCase().trim();
+  const phoneSearch = String(c.phone||"").toLowerCase().trim();
+  const phone2Search = String(c.phone2||"").toLowerCase().trim();
+  const numericSearch = [c.cpf,c.phone,c.phone2].map(v=>String(v||"").replace(/\D/g,"")).filter(Boolean).join(" ");
+  const searchText = [nameSearch,cpfSearch,phoneSearch,phone2Search,numericSearch].join(" ");
+  return '<button class="client-card anim" data-client-card data-search="'+esc(searchText)+'" data-act="open-client" data-id="'+esc(c.id)+'">'+
+    ph+
+    '<span class="grow">'+
+      '<span class="b truncate" style="display:block;font-size:15px">'+esc(c.name||"Sem nome")+'</span>'+
+      '<span class="small muted">'+esc(c.phone||"Sem contato")+'</span>'+
+      '<span class="chips">'+
+        '<span class="chip '+(ct.pending?"chip-amber":"chip-gray")+'">'+ct.pending+' pendente'+(ct.pending===1?"":"s")+'</span>'+
+        '<span class="chip chip-green">'+ct.done+' pago'+(ct.done===1?"":"s")+'</span>'+
+      '</span>'+
+    '</span>'+
+    '<span style="text-align:right;flex:none">'+
+      '<span class="tiny muted" style="display:block">A receber</span>'+
+      '<span class="b" style="color:'+(hasLate?"var(--red)":(ct.receivable>0?"var(--green)":"var(--muted)"))+';font-size:15px">'+money(ct.receivable)+'</span>'+
+    '</span>'+
+  '</button>';
+}
+
+/* ---------- EMPRÉSTIMOS ATIVOS ---------- */
+function viewActiveLoans(){
+  const rows = state.clients.map(c=>({
+    c,
+    loans: clientLoans(c.id).filter(l=>l.status!=="paid")
+  })).filter(x=>x.loans.length);
+
+  return '<div class="screen">'+
+    navHTML("Empréstimos ativos","home")+
+    '<div class="small muted" style="margin:4px 0 12px">Somente clientes que possuem empréstimo em aberto.</div>'+
+    (rows.length ? rows.map(({c,loans})=>{
+      const receivable = loans.reduce((sum,l)=>sum+loanCalc(l).current,0);
+      const ph = c.photo
+        ? '<span class="ph"><img src="'+esc(c.photo)+'" alt="Foto de '+esc(c.name)+'"></span>'
+        : '<span class="ph">'+esc((c.name||"?").trim().charAt(0).toUpperCase())+'</span>';
+      const late = loans.some(l=>daysLate(l.dueDate)>0);
+      return '<button class="client-card anim" data-act="open-client" data-id="'+esc(c.id)+'">'+
+        ph+
+        '<span class="grow"><span class="b truncate" style="display:block;font-size:15px">'+esc(c.name||"Sem nome")+'</span>'+
+        '<span class="small muted">'+loans.length+' empréstimo'+(loans.length===1?'':'s')+' em aberto</span>'+
+        '</span>'+
+        '<span style="text-align:right;flex:none"><span class="tiny muted" style="display:block">A receber</span>'+
+        '<span class="b" style="color:'+(late?'var(--red)':'var(--green)')+';font-size:15px">'+money(receivable)+'</span></span>'+
+        '</button>';
+    }).join('') : '<div class="empty"><div style="font-size:15px;font-weight:700;color:#f2f4f7;margin-bottom:6px">Nenhum empréstimo em aberto</div>Não há clientes com empréstimos ativos no momento.</div>')+
+    '<p class="legal-note">Aqui aparecem somente os clientes que possuem pelo menos um empréstimo ainda não pago.</p>'+
+  '</div>';
+}
+
+/* ---------- DETALHES DO CLIENTE ---------- */
+function viewClient(id){
+  const c = state.clients.find(x=>x.id===id);
+  if(!c) return '<div class="screen">'+navHTML("Cliente","home")+'<div class="empty">Cliente não encontrado.</div></div>';
+  const ct = clientTotals(id);
+  const ls = clientLoans(id);
+  const hasLate = ls.some(l=>l.status!=="paid" && daysLate(l.dueDate)>0);
+  const actives = ls.filter(l=>l.status!=="paid").sort((a,b)=> String(a.dueDate).localeCompare(String(b.dueDate)));
+  const paids   = panelPaidLoans(id, ls);
+
+  const ph = c.photo
+    ? '<span class="ph" style="width:64px;height:64px"><img src="'+esc(c.photo)+'" alt="Foto de '+esc(c.name)+'"></span>'
+    : '<span class="ph" style="width:64px;height:64px;font-size:24px">'+esc((c.name||"?").charAt(0).toUpperCase())+'</span>';
+
+  return '<div class="screen">'+
+    navHTML(c.name||"Cliente","home",'<button class="icon-btn" data-act="client-menu" data-id="'+esc(c.id)+'" aria-label="Opções do cliente">'+IC.dots+'</button>')+
+
+    '<section class="hero" style="margin-top:6px">'+
+      '<div class="row gap-3">'+ph+
+        '<div class="grow"><div class="b" style="font-size:17px">'+esc(c.name||"—")+'</div>'+
+        '<div class="small muted">'+esc(c.phone||"Sem telefone")+'</div></div>'+
+      '</div>'+
+      '<div class="hero-split">'+
+        '<div class="mini"><div class="k">Emprestado em aberto</div><div class="v v-amber">'+money(ct.open)+'</div></div>'+
+        '<div class="mini"><div class="k">A receber agora</div><div class="v '+(hasLate?'v-red':'v-green')+'">'+money(ct.receivable)+'</div></div>'+
+        '<div class="mini"><div class="k">Total já emprestado</div><div class="v v-text">'+money(ct.lent)+'</div></div>'+
+        '<div class="mini"><div class="k">Juros cobrados</div><div class="v v-blue">'+money(ct.interest)+'</div></div>'+
+      '</div>'+
+    '</section>'+
+
+    '<div style="height:14px"></div>'+
+    '<button class="btn btn-primary" data-act="new-loan" data-id="'+esc(c.id)+'">'+IC.plus+' Adicionar valor</button>'+
+    '<div style="height:10px"></div>'+
+    '<button class="btn btn-ghost request-view-btn" data-act="client-requests" data-id="'+esc(c.id)+'">📋 Ver solicitações do cliente <span class="request-count">'+state.loanRequests.filter(r=>r.clientId===c.id).length+'</span></button>'+
+
+    '<div class="sec-head"><span class="sec-title">Empréstimos em aberto</span><span class="badge">'+actives.length+'</span></div>'+
+    (actives.length ? actives.map(loanCardHTML).join("") : '<div class="empty">Nenhum empréstimo em aberto.</div>')+
+
+    '<div class="sec-head"><span class="sec-title">Histórico de pagamentos</span><span class="badge">'+paids.length+'</span></div>'+
+    (paids.length ? paids.map(paidCardHTML).join("") : '<div class="empty">Nenhum pagamento registrado ainda.</div>')+
+
+    '<p class="legal-note">Dados pessoais devem ser armazenados somente com autorização do cliente.</p>'+
+  '</div>';
+}
+
+/* ---------- cartão de empréstimo em aberto ---------- */
+function loanCardHTML(l){
+  const cc = loanCalc(l);
+  const late = cc.daysLate > 0;
+  return '<article class="loan anim '+(late?"late":"")+'">'+
+    '<div class="loan-top">'+
+      '<div class="grow">'+
+        '<div class="tiny muted b">VALOR ATUAL A RECEBER</div>'+
+        '<div class="amount '+(late?"red":"green")+'">'+money(cc.current)+'</div>'+
+      '</div>'+
+      '<button class="dots" data-act="loan-menu" data-id="'+esc(l.id)+'" aria-label="Opções do empréstimo">'+IC.dots+'</button>'+
+    '</div>'+
+    '<div class="kv">'+
+      '<div class="i"><div class="k">Valor emprestado</div><div class="v v-amber">'+money(l.principal)+'</div></div>'+
+      '<div class="i"><div class="k">Juros ('+fmtPct(l.ratePct)+'%)</div><div class="v v-blue">'+money(l.interest)+'</div></div>'+
+      '<div class="i"><div class="k">Total base</div><div class="v">'+money(l.totalBase)+'</div></div>'+
+      '<div class="i"><div class="k">Vencimento</div><div class="v">'+fmtDate(l.dueDate)+'</div></div>'+
+    '</div>'+
+    (late ? '<div class="late-box"><span class="b">Atrasado há '+cc.daysLate+' dia'+(cc.daysLate===1?"":"s")+'</span><br>Diárias: '+money(cc.lateFees)+' (R$ 20,00/dia)<br>Total atualizado: <span class="b">'+money(cc.current)+'</span></div>' : "")+
+    (l.note ? '<div class="note-box">'+esc(l.note)+'</div>' : "")+
+    '<div class="loan-actions">'+
+      '<button class="link-proofs" data-act="proofs" data-id="'+esc(l.id)+'">🧾 Ver comprovantes</button>'+
+      '<button class="btn btn-green btn-sm grow" data-act="pay" data-id="'+esc(l.id)+'">'+IC.check+' Confirmar pagamento</button>'+
+    '</div>'+
+  '</article>';
+}
+
+/* ---------- cartão do histórico ---------- */
+function paidCardHTML(l){
+  const dl = Number(l.paidDaysLate)||0;
+  const fees = Number(l.paidLateFees)||0;
+  const total = Number(l.paidTotal) || l.totalBase;
+  const leo = panelClientName(l.clientId)==="leonardo henrique ferreira de faria";
+  const kv = leo
+    ? '<div class="kv">'+
+        '<div class="i"><div class="k">Valor emprestado</div><div class="v v-amber">'+money(l.principal)+'</div></div>'+
+        '<div class="i"><div class="k">Juros ('+fmtPct(l.ratePct)+'%)</div><div class="v v-blue">'+money(l.interest)+'</div></div>'+
+      '</div>'
+    : '<div class="kv">'+
+        '<div class="i"><div class="k">Valor emprestado</div><div class="v v-amber">'+money(l.principal)+'</div></div>'+
+        '<div class="i"><div class="k">Juros ('+fmtPct(l.ratePct)+'%)</div><div class="v v-blue">'+money(l.interest)+'</div></div>'+
+        '<div class="i"><div class="k">Diárias de atraso</div><div class="v">'+money(fees)+'</div></div>'+
+        '<div class="i"><div class="k">Dias atrasados</div><div class="v">'+dl+'</div></div>'+
+        '<div class="i"><div class="k">Vencimento</div><div class="v">'+fmtDate(l.dueDate)+'</div></div>'+
+        '<div class="i"><div class="k">Pago em</div><div class="v" style="font-size:12.5px">'+fmtDateTime(l.paidAt)+'</div></div>'+
+      '</div>';
+  return '<article class="loan paid anim">'+
+    '<div class="loan-top">'+
+      '<div class="grow">'+
+        '<div class="tiny muted b">VALOR TOTAL PAGO</div>'+
+        '<div class="amount green">'+money(total)+'</div>'+
+      '</div>'+
+      '<span class="chip chip-green" style="padding:6px 11px;font-size:11px">PAGO</span>'+
+    '</div>'+
+    kv+
+    (l.note ? '<div class="note-box">'+esc(l.note)+'</div>' : "")+
+    '<div class="loan-actions">'+
+      '<button class="link-proofs grow" data-act="proofs" data-id="'+esc(l.id)+'">🧾 Ver comprovantes</button>'+
+    '</div>'+
+  '</article>';
+}
+function fmtPct(p){
+  const n = Number(p)||0;
+  return (Math.round(n*100)/100).toString().replace(".",",");
+}
+
+/* ---------- FORMULÁRIO DE CLIENTE ---------- */
+function viewClientForm(id){
+  const c = id ? state.clients.find(x=>x.id===id) : null;
+  const editing = !!c;
+  return '<div class="screen">'+
+    navHTML(editing?"Editar cliente":"Novo cliente", editing?("client:"+c.id):"home")+
+    '<form id="clientForm" autocomplete="off">'+
+      '<div class="photo-pick">'+
+        '<label class="big-ph" for="cPhoto" id="cPhotoBox">'+(c&&c.photo?'<img src="'+esc(c.photo)+'" alt="Foto do cliente">':'Foto')+'</label>'+
+        '<input type="file" id="cPhoto" accept="image/*">'+
+        '<label for="cPhoto" class="btn btn-ghost btn-sm">Escolher foto do cliente</label>'+
+      '</div>'+
+      '<div class="field"><label for="cName">Nome completo</label><input class="input" id="cName" required placeholder="Nome do cliente" value="'+esc(c&&c.name||"")+'"></div>'+
+      '<div class="grid2">'+
+        '<div class="field"><label for="cPhone">Contato WhatsApp</label><input class="input" id="cPhone" type="tel" inputmode="tel" placeholder="(00) 00000-0000" value="'+esc(c&&c.phone||"")+'"></div>'+
+        '<div class="field"><label for="cPhone2">Contato 2</label><input class="input" id="cPhone2" type="tel" inputmode="tel" placeholder="(00) 00000-0000" value="'+esc(c&&c.phone2||"")+'"></div>'+
+      '</div>'+
+      '<div class="grid2">'+
+        '<div class="field"><label for="cCpf">CPF</label><input class="input" id="cCpf" type="tel" inputmode="numeric" placeholder="000.000.000-00" value="'+esc(c&&c.cpf||"")+'"></div>'+
+        '<div class="field"><label for="cEmail">E-mail</label><input class="input" id="cEmail" type="email" inputmode="email" placeholder="email@exemplo.com" value="'+esc(c&&c.email||"")+'"></div>'+
+      '</div>'+
+      '<div class="field"><label for="cAddr">Endereço</label><input class="input" id="cAddr" placeholder="Rua, número, bairro, cidade" value="'+esc(c&&c.address||"")+'"></div>'+
+      '<div class="client-docs-title">Documentos e conferência do cliente</div>'+
+      '<div class="client-docs-grid">'+
+        '<div class="client-doc-card"><div class="doc-label">Foto segurando o RG</div><div class="client-doc-thumb" id="cDocHoldingBox">'+(c&&c.photoRgHolding?'<img src="'+esc(c.photoRgHolding)+'" alt="Foto do cliente segurando o RG">':'Nenhuma foto')+'</div><input type="file" id="cDocHolding" accept="image/*"><label for="cDocHolding" class="btn btn-ghost btn-sm">Escolher foto</label></div>'+
+        '<div class="client-doc-card"><div class="doc-label">Foto do RG</div><div class="client-doc-thumb" id="cDocRgBox">'+(c&&c.photoRg?'<img src="'+esc(c.photoRg)+'" alt="Foto do RG">':'Nenhuma foto')+'</div><input type="file" id="cDocRg" accept="image/*"><label for="cDocRg" class="btn btn-ghost btn-sm">Escolher foto</label></div>'+
+        '<div class="client-doc-card"><div class="doc-label">Comprovante de endereço</div><div class="client-doc-thumb" id="cDocAddressBox">'+(c&&c.photoAddress?'<img src="'+esc(c.photoAddress)+'" alt="Comprovante de endereço">':'Nenhuma foto')+'</div><input type="file" id="cDocAddress" accept="image/*"><label for="cDocAddress" class="btn btn-ghost btn-sm">Escolher foto</label></div>'+
+        '<div class="client-doc-card"><div class="doc-label">Foto da localização</div><div class="client-doc-thumb" id="cDocLocationBox">'+(c&&c.photoLocation?'<img src="'+esc(c.photoLocation)+'" alt="Foto da localização">':'Nenhuma foto')+'</div><input type="file" id="cDocLocation" accept="image/*"><label for="cDocLocation" class="btn btn-ghost btn-sm">Escolher foto</label></div>'+
+      '</div>'+
+      '<div class="field"><label for="cNotes">Informações complementares</label><textarea class="input" id="cNotes" placeholder="Observações sobre o cliente">'+esc(c&&c.notes||"")+'</textarea></div>'+
+      '<button type="submit" class="btn btn-primary" id="btnSaveClient">SALVAR CLIENTE</button>'+
+      '<p class="legal-note">Dados pessoais devem ser armazenados somente com autorização do cliente.</p>'+
+    '</form>'+
+  '</div>';
+}
+
+/* ---------- FORMULÁRIO DE EMPRÉSTIMO ---------- */
+function viewLoanForm(loanId, preClientId){
+  const l = loanId ? state.loans.find(x=>x.id===loanId) : null;
+  const requestPrefill = (!l && preClientId && typeof preClientId === "object") ? preClientId : null;
+  const clientPrefillId = requestPrefill ? requestPrefill.clientId : preClientId;
+  const editing = !!l;
+  const cid = editing ? l.clientId : (clientPrefillId || (state.clients[0]&&state.clients[0].id));
+  const backTo = editing ? ("client:"+l.clientId) : (clientPrefillId ? "client:"+clientPrefillId : "home");
+  const preAmount = requestPrefill ? Number(requestPrefill.amount)||0 : 0;
+  const preRate = requestPrefill ? Number(requestPrefill.ratePct)||0 : 0;
+  const preDue = requestPrefill && requestPrefill.dueDate ? requestPrefill.dueDate : todayISO();
+
+  const opts = state.clients.map(c =>
+    '<option value="'+esc(c.id)+'"'+(c.id===cid?" selected":"")+'>'+esc(c.name||"Sem nome")+'</option>'
+  ).join("");
+
+  const extras = (l && l.extraProofs || []).map((src,i)=> extraProofHTML(i+3, src)).join("");
+
+  return '<div class="screen">'+
+    navHTML(editing?"Editar empréstimo":"Adicionar valor", backTo)+
+    '<form id="loanForm" autocomplete="off">'+
+      '<div class="field"><label for="lClient">Cliente</label><select class="input" id="lClient">'+opts+'</select></div>'+
+
+      '<div class="grid2">'+
+        '<div class="field"><label for="lValue">Valor emprestado</label>'+
+          '<div class="input-wrap"><span class="input-prefix">R$</span>'+
+          '<input class="input input-prefix-pad" id="lValue" type="tel" inputmode="numeric" placeholder="0,00" value="'+(l?esc(l.principal.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})):(preAmount?esc(preAmount.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})):""))+'"></div></div>'+
+        '<div class="field"><label for="lRate">Taxa de juros</label>'+
+          '<div class="input-wrap"><input class="input" id="lRate" type="tel" inputmode="decimal" placeholder="30" style="padding-right:42px" value="'+(l?esc(fmtPct(l.ratePct)):(requestPrefill?esc(fmtPct(preRate)):""))+'"><span class="input-suffix">%</span></div></div>'+
+      '</div>'+
+
+      '<div class="readonly-box"><div class="k">Valor total a receber</div><div class="v" id="lTotal">R$ 0,00</div><div class="d" id="lTotalDetail">Informe o valor e a taxa de juros.</div></div>'+
+
+      '<div class="field"><label for="lDue">Data de vencimento</label><input class="input" id="lDue" type="date" value="'+esc(l&&l.dueDate||preDue)+'"></div>'+
+
+      '<div class="field"><label>Comprovante 1</label>'+proofRowHTML("p1", l&&l.proof1)+'</div>'+
+      '<div class="field"><label>Comprovante 2</label>'+proofRowHTML("p2", l&&l.proof2)+'</div>'+
+      '<div id="extraProofs">'+extras+'</div>'+
+      '<button type="button" class="btn btn-ghost btn-sm" id="btnAddProof" style="width:100%;margin-bottom:16px">＋ Adicionar mais comprovante</button>'+
+
+      '<div class="field"><label for="lNote">Observação</label><textarea class="input" id="lNote" placeholder="Anotações sobre este empréstimo">'+esc(l&&l.note||(requestPrefill?"Solicitação recebida pelo site do cliente":""))+'</textarea></div>'+
+
+      '<button type="submit" class="btn btn-primary" id="btnSaveLoan">SALVAR VALOR</button>'+
+      '<div style="height:20px"></div>'+
+    '</form>'+
+  '</div>';
+}
+function proofRowHTML(key, src){
+  return '<div class="upload" data-proof="'+key+'">'+
+    '<span class="thumb" data-thumb>'+(src?'<img src="'+esc(src)+'" alt="Pré-visualização do comprovante">':'—')+'</span>'+
+    '<span class="grow"><label for="f_'+key+'" class="btn btn-ghost btn-sm" style="width:100%">Escolher comprovante</label></span>'+
+    '<input type="file" id="f_'+key+'" accept="image/*" data-file="'+key+'">'+
+  '</div>';
+}
+function extraProofHTML(n, src){
+  const key = "x"+uid();
+  return '<div class="field proof-item" data-extra="'+key+'">'+
+    '<label>Comprovante '+n+'</label>'+
+    '<div class="upload" data-proof="'+key+'">'+
+      '<span class="thumb" data-thumb>'+(src?'<img src="'+esc(src)+'" alt="Pré-visualização do comprovante">':'—')+'</span>'+
+      '<span class="grow" style="display:flex;flex-direction:column;gap:7px">'+
+        '<label for="f_'+key+'" class="btn btn-ghost btn-sm" style="width:100%">Escolher comprovante</label>'+
+        '<button type="button" class="btn btn-red btn-sm" style="width:100%" data-act="rm-extra" data-key="'+key+'">Remover comprovante</button>'+
+      '</span>'+
+      '<input type="file" id="f_'+key+'" accept="image/*" data-file="'+key+'">'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------- TELA DE COMPROVANTES ---------- */
+function allProofs(l){
+  const arr = [];
+  if(l.proof1) arr.push(l.proof1);
+  if(l.proof2) arr.push(l.proof2);
+  (l.extraProofs||[]).forEach(p=>{ if(p) arr.push(p); });
+  return arr;
+}
+function viewProofs(loanId){
+  const l = state.loans.find(x=>x.id===loanId);
+  if(!l) return '<div class="screen">'+navHTML("Comprovantes","home")+'<div class="empty">Empréstimo não encontrado.</div></div>';
+  const cc = loanCalc(l);
+  const imgs = allProofs(l);
+  const back = "client:"+l.clientId;
+  return '<div class="screen">'+
+    '<div class="navbar">'+
+      '<button class="icon-btn" data-act="nav-back" data-to="'+esc(back)+'" aria-label="Voltar">'+IC.back+'</button>'+
+      '<h2 class="grow">Comprovantes</h2>'+
+      '<button class="icon-btn" data-act="nav-back" data-to="'+esc(back)+'" aria-label="Fechar">'+IC.close+'</button>'+
+    '</div>'+
+    '<section class="hero" style="margin-top:4px">'+
+      '<div class="label">Valor do empréstimo</div>'+
+      '<div class="big">'+money(cc.current)+'</div>'+
+      '<div class="hero-split">'+
+        '<div class="mini"><div class="k">Valor emprestado</div><div class="v v-amber">'+money(l.principal)+'</div></div>'+
+        '<div class="mini"><div class="k">Juros ('+fmtPct(l.ratePct)+'%)</div><div class="v v-blue">'+money(l.interest)+'</div></div>'+
+        '<div class="mini"><div class="k">Vencimento</div><div class="v v-text" style="font-size:15px">'+fmtDate(l.dueDate)+'</div></div>'+
+        '<div class="mini"><div class="k">Comprovantes</div><div class="v v-text">'+imgs.length+'</div></div>'+
+      '</div>'+
+    '</section>'+
+    '<div style="height:18px"></div>'+
+    (imgs.length
+      ? imgs.map((src,i)=> '<div class="proof-view anim"><div class="proof-num">'+(i+1)+'</div><img class="proof-img" src="'+esc(src)+'" alt="Comprovante '+(i+1)+'"></div>').join("")
+      : '<div class="empty">Nenhum comprovante anexado a este empréstimo.</div>')+
+  '</div>';
+}
+
+/* ---------- BACKUP ---------- */
+function viewBackup(){
+  return '<div class="screen">'+
+    navHTML("Backup e dados","home")+
+    '<div class="loan" style="padding:18px">'+
+      '<div class="b" style="font-size:15px;margin-bottom:6px">Exportar dados</div>'+
+      '<p class="small muted" style="margin:0 0 14px">Gera um arquivo JSON com todos os clientes, empréstimos e comprovantes.</p>'+
+      '<button class="btn btn-primary" data-act="export">Exportar backup JSON</button>'+
+    '</div>'+
+    '<div class="loan" style="padding:18px">'+
+      '<div class="b" style="font-size:15px;margin-bottom:6px">Importar backup</div>'+
+      '<p class="small muted" style="margin:0 0 14px">O arquivo é validado antes da importação e substitui os dados atuais.</p>'+
+      '<label for="fImport" class="btn btn-ghost" style="width:100%">Escolher arquivo JSON</label>'+
+      '<input type="file" id="fImport" accept="application/json,.json">'+
+    '</div>'+
+    '<div class="loan" style="padding:18px">'+
+      '<div class="b" style="font-size:15px;margin-bottom:6px">Apagar dados locais</div>'+
+      '<p class="small muted" style="margin:0 0 14px">Remove o cache deste aparelho. Os dados na nuvem não são afetados.</p>'+
+      '<button class="btn btn-red" data-act="wipe">Apagar dados locais</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ----------------------------------------------------------------
+   11. RELÓGIO
+   ---------------------------------------------------------------- */
+let clockTimer=null;
+
+function applyValueVisibility(){
+  const root=$("#app");
+  if(!root) return;
+
+  const selectors=[
+    ".hero .big",
+    ".mini .v",
+    ".stat .n",
+    ".client-card [style*='color:var(--green)']",
+    ".amount",
+    ".kv .v",
+    ".readonly-box .v",
+    ".late-box",
+    ".info-line .v"
+  ];
+
+  root.querySelectorAll(selectors.join(",")).forEach(node=>{
+    if(!node.dataset.realText){
+      node.dataset.realText=node.textContent;
+      node.style.setProperty("--value-width",Math.ceil(node.getBoundingClientRect().width)+"px");
+    }
+
+    const original=node.dataset.realText||"";
+    const looksMoney=/R\$\s*[\d.,]+/.test(original);
+    const looksNumber=/^\s*\d+\s*$/.test(original);
+
+    if(state.hideValues && (looksMoney||looksNumber)){
+      node.classList.add("value-hidden");
+      node.textContent=looksMoney ? "R$ •••••" : "•••";
+    }else{
+      node.classList.remove("value-hidden");
+      node.textContent=original;
+    }
+  });
+}
+
+function startClock(){
+  clearInterval(clockTimer);
+  const tick = ()=>{
+    const c = $("#clock"); if(!c) return;
+    const d = new Date();
+    c.textContent = String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");
+    // recalcula diárias na virada do dia
+    const iso = todayISO();
+    if(iso !== state.today){ state.today = iso; render(); }
+  };
+  tick();
+  clockTimer = setInterval(tick, 1000);
+}
+
+/* ----------------------------------------------------------------
+   12. BIND — eventos das telas
+   ---------------------------------------------------------------- */
+function bind(){
+  const app = $("#app");
+
+  /* delegação de cliques por data-act */
+  app.onclick = (e)=>{
+    const btn = e.target.closest("[data-act]");
+    if(!btn) return;
+    const act = btn.dataset.act, id = btn.dataset.id;
+
+    if(act==="notifications"){ showAppNotifications(); return; }
+    if(act==="toggle-eye"){
+      state.hideValues = !state.hideValues;
+      localStorage.setItem(LS.hide, state.hideValues?"1":"0");
+      applyValueVisibility();
+      btn.innerHTML = state.hideValues ? IC.eyeOff : IC.eye;
+      return;
+    }
+    if(act==="nav-back"){
+      const to = btn.dataset.to || "home";
+      if(to.indexOf("client:")===0) go("client", to.split(":")[1]);
+      else go(to);
+      return;
+    }
+    if(act==="open-client"){ go("client", id); return; }
+    if(act==="active-loans"){ go("activeLoans"); return; }
+    if(act==="client-requests"){ showClientRequests(id); return; }
+    if(act==="new-client"){ go("clientForm"); return; }
+
+    if(act==="new-loan"){
+      if(!state.clients.length){
+        popup({ title:"Nenhum cliente cadastrado",
+          text:"Para adicionar um valor você precisa cadastrar um cliente primeiro.",
+          actions:[{label:"Cancelar"},{label:"Cadastrar cliente",cls:"btn-primary",onClick:()=>go("clientForm")}]});
+        return;
+      }
+      go("loanForm", null, id||null); return;
+    }
+    if(act==="proofs"){ go("proofs", id); return; }
+    if(act==="pay"){ askPay(id); return; }
+    if(act==="loan-menu"){ loanMenu(id); return; }
+    if(act==="client-menu"){ clientMenu(id); return; }
+    if(act==="rm-extra"){
+      const node = app.querySelector('[data-extra="'+btn.dataset.key+'"]');
+      if(node){ node.remove(); renumberExtras(); }
+      return;
+    }
+  };
+
+
+  /* pesquisa instantânea por nome ou telefone */
+  const search=$("#clientSearch");
+  if(search){
+    search.oninput=()=>{
+      const qRaw=search.value.trim();
+      const qText=qRaw.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+      const qDigits=qRaw.replace(/\D/g,"");
+      let shown=0;
+      $$("[data-client-card]",app).forEach(card=>{
+        const hay=(card.dataset.search||"").toLowerCase();
+        const ok=!qRaw || hay.includes(qText) || (!!qDigits && hay.includes(qDigits));
+        card.classList.toggle("hide",!ok);
+        if(ok) shown++;
+      });
+      const empty=$("#searchEmpty");
+      if(empty) empty.classList.toggle("hide",shown!==0);
+    };
+  }
+
+  /* ---- formulário de cliente ---- */
+  const cf = $("#clientForm");
+  if(cf){
+    const ph = $("#cPhone"), ph2 = $("#cPhone2"), cpf = $("#cCpf");
+    ph.oninput  = ()=> ph.value  = maskPhone(ph.value);
+    ph2.oninput = ()=> ph2.value = maskPhone(ph2.value);
+    cpf.oninput = ()=> cpf.value = maskCPF(cpf.value);
+
+    let photoData = (state.route.id && (state.clients.find(x=>x.id===state.route.id)||{}).photo) || "";
+    const editingClient = state.route.id ? (state.clients.find(x=>x.id===state.route.id)||{}) : {};
+    const docData = {
+      photoRgHolding: editingClient.photoRgHolding || "",
+      photoRg: editingClient.photoRg || "",
+      photoAddress: editingClient.photoAddress || "",
+      photoLocation: editingClient.photoLocation || ""
+    };
+    const docUploadMap = {
+      cDocHolding: ["photoRgHolding","cDocHoldingBox","Foto segurando o RG"],
+      cDocRg: ["photoRg","cDocRgBox","Foto do RG"],
+      cDocAddress: ["photoAddress","cDocAddressBox","Comprovante de endereço"],
+      cDocLocation: ["photoLocation","cDocLocationBox","Foto da localização"]
+    };
+    Object.keys(docUploadMap).forEach(inputId=>{
+      const input = $("#"+inputId);
+      if(!input) return;
+      input.onchange = async (ev)=>{
+        const f = ev.target.files && ev.target.files[0]; if(!f) return;
+        const [key, boxId, label] = docUploadMap[inputId];
+        try{
+          setSync("saving","Processando imagem…");
+          docData[key] = await compressImage(f);
+          const box = $("#"+boxId);
+          if(box) box.innerHTML = '<img src="'+esc(docData[key])+'" alt="'+esc(label)+'">';
+          setSync("synced","Sincronizado",1200);
+          toast(label+" adicionada","ok");
+        }catch(err){
+          setSync("error","Erro na imagem");
+          popup({title:"Imagem muito grande",text:err.message});
+        }
+        ev.target.value = "";
+      };
+    });
+    $("#cPhoto").onchange = async (ev)=>{
+      const f = ev.target.files && ev.target.files[0]; if(!f) return;
+      try{
+        setSync("saving","Processando foto…");
+        photoData = await compressImage(f);
+        $("#cPhotoBox").innerHTML = '<img src="'+esc(photoData)+'" alt="Foto do cliente">';
+        setSync("synced","Sincronizado",1200);
+        toast("Foto adicionada","ok");
+      }catch(err){ setSync("error","Erro na foto"); popup({title:"Foto muito grande",text:err.message}); }
+      ev.target.value = "";
+    };
+
+    cf.onsubmit = async (ev)=>{
+      ev.preventDefault();
+      const name = $("#cName").value.trim();
+      if(!name){ popup({title:"Nome obrigatório",text:"Informe o nome completo do cliente."}); return; }
+      const editing = state.route.id ? state.clients.find(x=>x.id===state.route.id) : null;
+      const obj = Object.assign({}, editing||{}, {
+        id: editing ? editing.id : uid(),
+        name, phone:$("#cPhone").value.trim(), phone2:$("#cPhone2").value.trim(),
+        cpf:$("#cCpf").value.trim(), address:$("#cAddr").value.trim(),
+        email:$("#cEmail").value.trim(), notes:$("#cNotes").value.trim(),
+        photo: photoData || "",
+        photoRgHolding: docData.photoRgHolding || "",
+        photoRg: docData.photoRg || "",
+        photoAddress: docData.photoAddress || "",
+        photoLocation: docData.photoLocation || "",
+        panelVisible: editing ? (editing.panelVisible !== false) : true,
+        createdAt: editing ? (editing.createdAt||Date.now()) : Date.now(),
+        updatedAt: Date.now(),
+        requestId: (!editing && requestPrefill ? requestPrefill.id : (editing ? (editing.requestId||"") : ""))
+      });
+      if(!editing) rememberPanelNewClient(obj.id);
+      upsert("clients", obj);
+      await fbSet("clients", obj);
+      toast(editing ? "Cliente atualizado" : "Cliente cadastrado","ok");
+      go("client", obj.id);
+    };
+  }
+
+  /* ---- formulário de empréstimo ---- */
+  const lf = $("#loanForm");
+  if(lf){
+    const editing = state.route.id ? state.loans.find(x=>x.id===state.route.id) : null;
+    const proofs = {
+      p1: editing ? (editing.proof1||"") : "",
+      p2: editing ? (editing.proof2||"") : ""
+    };
+    const extraMap = {}; // key -> base64
+    if(editing){
+      $$("#extraProofs [data-extra]").forEach((node,i)=>{
+        extraMap[node.dataset.extra] = (editing.extraProofs||[])[i] || "";
+      });
+    }
+
+    const vInput = $("#lValue"), rInput = $("#lRate");
+    const recalc = ()=>{
+      const principal = unmaskMoney(vInput.value);
+      const rate = parseFloat(String(rInput.value).replace(",", ".")) || 0;
+      const juros = round2(principal * rate / 100);
+      const total = round2(principal + juros);
+      $("#lTotal").textContent = fmt(total);
+      $("#lTotalDetail").textContent = principal>0
+        ? "Emprestado " + fmt(principal) + " + juros de " + fmtPct(rate) + "% (" + fmt(juros) + ")"
+        : "Informe o valor e a taxa de juros.";
+    };
+    vInput.oninput = ()=>{ vInput.value = maskMoney(vInput.value); recalc(); };
+    rInput.oninput = ()=>{ rInput.value = String(rInput.value).replace(/[^0-9.,]/g,"").slice(0,6); recalc(); };
+    recalc();
+
+    /* seleção de arquivos (comprovantes) */
+    lf.addEventListener("change", async (ev)=>{
+      const inp = ev.target.closest("input[type=file][data-file]");
+      if(!inp) return;
+      const key = inp.dataset.file;
+      const f = inp.files && inp.files[0]; if(!f) return;
+      try{
+        setSync("saving","Processando imagem…");
+        const b64 = await compressImage(f);
+        if(key==="p1"||key==="p2") proofs[key]=b64; else extraMap[key]=b64;
+        const thumb = inp.closest("[data-proof]").querySelector("[data-thumb]");
+        thumb.innerHTML = '<img src="'+esc(b64)+'" alt="Pré-visualização do comprovante">';
+        setSync("synced","Sincronizado",1200);
+        toast("Comprovante adicionado","ok");
+      }catch(err){ setSync("error","Erro na imagem"); popup({title:"Imagem muito grande",text:err.message}); }
+      inp.value="";
+    });
+
+    $("#btnAddProof").onclick = ()=>{
+      const wrap = $("#extraProofs");
+      const n = wrap.children.length + 3;
+      const tmp = el("div", null, extraProofHTML(n, ""));
+      const node = tmp.firstElementChild;
+      wrap.appendChild(node);
+      extraMap[node.dataset.extra] = "";
+      node.scrollIntoView({behavior:"smooth",block:"center"});
+    };
+
+    lf.onsubmit = async (ev)=>{
+      ev.preventDefault();
+      const clientId = $("#lClient").value;
+      const principal = unmaskMoney(vInput.value);
+      const rate = parseFloat(String(rInput.value).replace(",", ".")) || 0;
+      const due = $("#lDue").value;
+
+      if(!clientId){ popup({title:"Cliente obrigatório",text:"Selecione o cliente deste empréstimo."}); return; }
+      if(!(principal>0)){ popup({title:"Valor inválido",text:"Informe um valor emprestado maior que zero."}); return; }
+      if(rate < 0){ popup({title:"Valor inválido",text:"A taxa de juros não pode ser negativa."}); return; }
+      if(!due){ popup({title:"Vencimento obrigatório",text:"Selecione a data de vencimento."}); return; }
+      if(!proofs.p1){ popup({title:"Comprovante obrigatório",text:"Anexe o Comprovante 1 para salvar este empréstimo."}); return; }
+
+      const extras = $$("#extraProofs [data-extra]").map(n=> extraMap[n.dataset.extra]).filter(Boolean);
+      const juros = round2(principal * rate / 100);
+
+      const obj = Object.assign({}, editing||{}, {
+        id: editing ? editing.id : uid(),
+        clientId, principal, ratePct: rate,
+        interest: juros, totalBase: round2(principal + juros),
+        dueDate: due, note: $("#lNote").value.trim(),
+        proof1: proofs.p1, proof2: proofs.p2 || "",
+        extraProofs: extras,
+        status: editing ? editing.status : "active",
+        createdAt: editing ? (editing.createdAt||Date.now()) : Date.now(),
+        updatedAt: Date.now()
+      });
+      delete obj.proof3;
+
+      upsert("loans", normalizeLoan(obj));
+      const ok = await fbSet("loans", obj);
+      if(!ok && FB.ok) popup({title:"Erro ao salvar na nuvem",text:"O empréstimo foi salvo neste aparelho, mas não foi possível enviar ao Firebase agora. Ele será sincronizado quando a conexão voltar."});
+
+      if(!editing && requestPrefill && requestPrefill.id){
+        const req = state.loanRequests.find(r=>r.id===requestPrefill.id);
+        if(req){
+          const updatedReq=Object.assign({},req,{status:"completed",completedAt:Date.now(),loanId:obj.id,updatedAt:Date.now()});
+          state.loanRequests=state.loanRequests.map(r=>r.id===req.id?updatedReq:r);
+          await fbSet("loanRequests",updatedReq);
+        }
+      }
+
+      if(!editing){
+        const client=state.clients.find(c=>c.id===clientId);
+        addAlertEvent({
+          id:"newloan:"+obj.id,
+          type:"newloan",
+          title:"Novo empréstimo cadastrado",
+          text:(client?.name||"Cliente")+" recebeu "+fmt(principal)+". Total a receber: "+fmt(obj.totalBase)+".",
+          loanId:obj.id,
+          clientId:clientId,
+          createdAt:Date.now()
+        });
+      }
+
+      toast(editing ? "Valor atualizado" : "Valor adicionado","ok");
+      go("client", clientId);
+    };
+  }
+
+  /* ---- importar backup ---- */
+  const fi = $("#fImport");
+  if(fi){
+    fi.onchange = (ev)=>{
+      const f = ev.target.files && ev.target.files[0]; if(!f) return;
+      const rd = new FileReader();
+      rd.onload = ()=>{
+        let data;
+        try{ data = JSON.parse(rd.result); }
+        catch(err){ popup({title:"Arquivo inválido",text:"Não foi possível ler este arquivo JSON."}); return; }
+        if(!data || !Array.isArray(data.clients) || !Array.isArray(data.loans)){
+          popup({title:"Arquivo inválido",text:"O arquivo não contém a estrutura esperada de clientes e empréstimos."}); return;
+        }
+        popup({
+          title:"Restaurar backup",
+          text:"Serão importados "+data.clients.length+" cliente(s) e "+data.loans.length+" empréstimo(s).\n\nOs dados atuais serão substituídos. Deseja continuar?",
+          actions:[{label:"Cancelar"},{label:"Restaurar backup",cls:"btn-primary",onClick:async ()=>{
+            state.clients = data.clients;
+            state.loans = data.loans.map(normalizeLoan);
+            saveLocal();
+            if(FB.ok){ setSync("saving","Salvando…"); await pushAllToCloud(); setSync("synced","Sincronizado",2000); }
+            toast("Backup restaurado","ok");
+            go("home");
+          }}]
+        });
+      };
+      rd.readAsText(f);
+      ev.target.value="";
+    };
+  }
+}
+
+function renumberExtras(){
+  $$("#extraProofs [data-extra]").forEach((n,i)=>{
+    const lab = n.querySelector("label"); if(lab) lab.textContent = "Comprovante "+(i+3);
+  });
+}
+
+/* ----------------------------------------------------------------
+   13. AÇÕES — menus, pagamento, exclusão, backup
+   ---------------------------------------------------------------- */
+function upsert(col, obj){
+  if(col==="clients") {
+    const ai=state.allClients.findIndex(x=>x.id===obj.id);
+    if(ai>=0) state.allClients[ai]=obj; else state.allClients.push(obj);
+  }
+  if(col==="clients"){
+    const i = state.clients.findIndex(x=>x.id===obj.id);
+    if(i>=0) state.clients[i]=obj; else if(isPanelClient(obj)) state.clients.push(obj);
+  }else{
+    const normalized=normalizeLoan(obj);
+    const all=state.allLoans || (state.allLoans=state.loans.slice());
+    const i=all.findIndex(x=>x.id===normalized.id);
+    if(i>=0) all[i]=normalized; else all.push(normalized);
+    state.loans=filterPanelLoans(all,state.clients);
+  }
+  saveLocal();
+}
+function removeLocal(col, id){
+  if(col==="clients") { state.clients = state.clients.filter(x=>x.id!==id); state.allClients = state.allClients.filter(x=>x.id!==id); }
+  else {
+    state.loans = state.loans.filter(x=>x.id!==id);
+    state.allLoans = (state.allLoans||[]).filter(x=>x.id!==id);
+  }
+  saveLocal();
+}
+
+
+function clientRequests(clientId){
+  return state.loanRequests
+    .filter(r=>r.clientId===clientId)
+    .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+}
+
+function requestStatusLabel(status){
+  const map={pending:"Pendente",accepted:"Aceita — aguardando documentos",rejected:"Negada",completed:"Concluída"};
+  return map[status||"pending"]||"Pendente";
+}
+
+function denyLoanRequest(requestId){
+  const r=state.loanRequests.find(x=>x.id===requestId);
+  if(!r) return;
+  popup({
+    title:"Negar empréstimo",
+    text:"Tem certeza que deseja negar esta solicitação?",
+    actions:[
+      {label:"Cancelar"},
+      {label:"Sim, negar",cls:"btn-red",onClick:async()=>{
+        const updated=Object.assign({},r,{status:"rejected",rejectedAt:Date.now(),updatedAt:Date.now()});
+        state.loanRequests=state.loanRequests.map(x=>x.id===r.id?updated:x);
+        await fbSet("loanRequests",updated);
+        toast("Empréstimo negado","ok");
+        render();
+      }}
+    ]
+  });
+}
+
+function acceptLoanRequest(requestId){
+  const r=state.loanRequests.find(x=>x.id===requestId);
+  if(!r) return;
+  const client=state.clients.find(c=>c.id===r.clientId);
+  popup({
+    title:"Deseja aceitar este empréstimo?",
+    html:'<div style="text-align:center;padding:4px 0 8px">'+
+      '<div style="font-size:28px;font-weight:950;color:var(--green);margin:8px 0">'+esc(money(Number(r.amount)||0))+'</div>'+
+      '<div class="small muted">Solicitação de <b style="color:#f2f4f7">'+esc(client?.name||"cliente")+'</b></div>'+
+      '<div class="small muted" style="margin-top:8px">Depois de aceitar, você poderá conferir/preencher os comprovantes e salvar o empréstimo.</div>'+
+      '</div>',
+    actions:[
+      {label:"Não, negar",cls:"btn-red",onClick:()=>denyLoanRequest(requestId)},
+      {label:"Sim, aceitar",cls:"btn-green",onClick:async()=>{
+        const updated=Object.assign({},r,{status:"accepted",acceptedAt:Date.now(),updatedAt:Date.now()});
+        state.loanRequests=state.loanRequests.map(x=>x.id===r.id?updated:x);
+        await fbSet("loanRequests",updated);
+        toast("Solicitação aceita","ok");
+        go("loanForm",null,{id:r.id,clientId:r.clientId,amount:r.amount,ratePct:r.ratePct,dueDate:r.dueDate||""});
+      }}
+    ]
+  });
+}
+
+function showClientRequests(clientId){
+  const client=state.clients.find(c=>c.id===clientId);
+  openOverlay((mo,close)=>{
+    function draw(){
+      const rows=clientRequests(clientId);
+      mo.innerHTML=
+        '<h3>Solicitações de '+esc(client?.name||"cliente")+'</h3>'+
+        '<p class="small muted" style="margin-top:-4px">Solicitações recebidas pelo aplicativo. Você decide aqui se aceita ou nega.</p>'+
+        (rows.length
+          ? '<div class="request-list">'+rows.map(r=>{
+              const status=r.status||"pending";
+              const actionable=status==="pending";
+              return '<article class="request-card" data-request-row="'+esc(r.id)+'">'+
+                '<div class="tiny muted b">VALOR SOLICITADO</div>'+
+                '<div class="request-value">'+money(Number(r.amount)||0)+'</div>'+
+                '<div class="request-meta">'+
+                  'Juros: '+fmtPct(Number(r.ratePct)||0)+'% ('+money(Number(r.interest)||0)+')<br>'+
+                  'Total previsto: '+money(Number(r.total)||0)+
+                  (r.pix ? '<br>Chave PIX: '+esc(r.pix) : '')+
+                  (r.pixType ? ' • '+esc(r.pixType) : '')+
+                '</div>'+
+                '<div class="request-date">Feita em '+fmtDateTime(Number(r.createdAt)||0)+'</div>'+
+                '<div class="request-status '+esc(status)+'">● '+esc(requestStatusLabel(status))+'</div>'+
+                (actionable ? '<div class="request-actions">'+
+                  '<button class="btn btn-red" data-request-deny="'+esc(r.id)+'">NEGAR EMPRÉSTIMO</button>'+
+                  '<button class="btn btn-green" data-request-accept="'+esc(r.id)+'">ACEITAR EMPRÉSTIMO</button>'+
+                '</div>' : (status==="accepted" ? '<div class="request-actions" style="grid-template-columns:1fr">'+
+                  '<button class="btn btn-primary" data-request-continue="'+esc(r.id)+'">CONTINUAR CADASTRO E ENVIAR COMPROVANTES</button>'+                '</div>' : ''))+
+                '<button class="request-delete" data-delete-request="'+esc(r.id)+'" aria-label="Apagar solicitação">×</button>'+
+              '</article>';
+            }).join('')+'</div>'
+          : '<div class="request-empty">Nenhuma solicitação feita por este cliente.</div>');
+
+      const acts=el("div","macts");
+      const closeBtn=el("button","btn btn-ghost","Fechar");
+      closeBtn.onclick=close;
+      acts.appendChild(closeBtn);
+      mo.appendChild(acts);
+
+      mo.querySelectorAll("[data-request-accept]").forEach(btn=>{
+        btn.onclick=()=>acceptLoanRequest(btn.dataset.requestAccept);
+      });
+      mo.querySelectorAll("[data-request-deny]").forEach(btn=>{
+        btn.onclick=()=>denyLoanRequest(btn.dataset.requestDeny);
+      });
+      mo.querySelectorAll("[data-request-continue]").forEach(btn=>{
+        btn.onclick=()=>{
+          const r=state.loanRequests.find(x=>x.id===btn.dataset.requestContinue);
+          if(!r) return;
+          go("loanForm",null,{id:r.id,clientId:r.clientId,amount:r.amount,ratePct:r.ratePct,dueDate:r.dueDate||""});
+        };
+      });
+      mo.querySelectorAll("[data-delete-request]").forEach(btn=>{
+        btn.onclick=()=>{
+          const requestId=btn.dataset.deleteRequest;
+          popup({
+            title:"Apagar solicitação",
+            text:"Deseja apagar esta solicitação do cliente? Esta ação não pode ser desfeita.",
+            actions:[
+              {label:"Cancelar"},
+              {label:"Apagar",cls:"btn-red",onClick:async()=>{
+                state.loanRequests=state.loanRequests.filter(r=>r.id!==requestId);
+                await fbDel("loanRequests",requestId);
+                toast("Solicitação apagada","ok");
+                draw();
+                render();
+              }}
+            ]
+          });
+        };
+      });
+    }
+    draw();
+  });
+}
+function clientMenu(id){
+  const c = state.clients.find(x=>x.id===id); if(!c) return;
+  sheet(c.name||"Cliente", [
+    { icon:IC.info,  label:"Ver todas as informações", onClick:()=>clientInfo(id) },
+    { icon:IC.edit,  label:"Editar cliente",           onClick:()=>go("clientForm", id) },
+    { icon:IC.trash, label:"Excluir cliente", cls:"danger", onClick:()=>askDeleteClient(id) },
+    { icon:IC.back,  label:"Voltar",                   onClick:()=>{} }
+  ]);
+}
+function clientInfo(id){
+  const c = state.clients.find(x=>x.id===id); if(!c) return;
+  const line = (k,v)=> '<div class="info-line"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v||"—")+'</span></div>';
+  openOverlay((mo,close)=>{
+    mo.innerHTML = '<h3>Informações do cliente</h3>'+
+      (c.photo ? '<div style="display:flex;justify-content:center;margin:6px 0 14px"><span class="ph" style="width:86px;height:86px"><img src="'+esc(c.photo)+'" alt="Foto de '+esc(c.name)+'"></span></div>' : "")+
+      '<div>'+
+        line("Nome", c.name)+ line("WhatsApp", c.phone)+ line("Contato 2", c.phone2)+
+        line("CPF", c.cpf)+ line("E-mail", c.email)+ line("Endereço", c.address)+
+        line("Cadastrado em", c.createdAt ? fmtDateTime(c.createdAt) : "—")+
+        line("Informações", c.notes)+
+      '</div>'+
+      '<div class="client-info-docs">'+
+        '<div class="client-info-doc"><div class="doc-label">Foto segurando o RG</div>'+(c.photoRgHolding?'<img src="'+esc(c.photoRgHolding)+'" alt="Foto do cliente segurando o RG">':'<div class="empty">Não anexada.</div>')+'</div>'+
+        '<div class="client-info-doc"><div class="doc-label">Foto do RG</div>'+(c.photoRg?'<img src="'+esc(c.photoRg)+'" alt="Foto do RG">':'<div class="empty">Não anexada.</div>')+'</div>'+
+        '<div class="client-info-doc"><div class="doc-label">Comprovante de endereço</div>'+(c.photoAddress?'<img src="'+esc(c.photoAddress)+'" alt="Comprovante de endereço">':'<div class="empty">Não anexado.</div>')+'</div>'+
+        '<div class="client-info-doc"><div class="doc-label">Foto da localização — conferir com o endereço cadastrado</div>'+(c.photoLocation?'<img src="'+esc(c.photoLocation)+'" alt="Foto da localização">':'<div class="empty">Não anexada.</div>')+'</div>'+
+      '</div>';
+    const acts = el("div","macts");
+    const b = el("button","btn btn-ghost","Fechar"); b.onclick = close; acts.appendChild(b);
+    mo.appendChild(acts);
+  });
+}
+function askDeleteClient(id){
+  const c = state.clients.find(x=>x.id===id); if(!c) return;
+  const n = clientLoans(id).length;
+  popup({
+    title:"Excluir cliente",
+    text:'Tem certeza que deseja excluir "'+(c.name||"este cliente")+'"?\n\n'+(n?("Os "+n+" empréstimo(s) vinculados também serão excluídos.\n\n"):"")+"Esta ação não pode ser desfeita.",
+    actions:[{label:"Cancelar"},{label:"Excluir cliente",cls:"btn-red",onClick:async ()=>{
+      const loans = clientLoans(id);
+      removeLocal("clients", id);
+      loans.forEach(l=> removeLocal("loans", l.id));
+      await fbDel("clients", id);
+      for(const l of loans) await fbDel("loans", l.id);
+      toast("Cliente excluído","ok");
+      go("home");
+    }}]
+  });
+}
+
+function loanMenu(id){
+  sheet("Empréstimo", [
+    { icon:IC.edit, label:"Editar", onClick:()=>go("loanForm", id) }
+  ]);
+}
+
+function askPay(id){
+  const l = state.loans.find(x=>x.id===id); if(!l) return;
+  const cc = loanCalc(l);
+  popup({
+    title:"Confirmar pagamento",
+    html:'Tem certeza que deseja marcar este valor como pago?<br><br>'+
+         '<span style="color:#22c55e;font-weight:800;font-size:22px">Valor: '+esc(fmt(cc.current))+'</span><br><br>'+
+         (cc.daysLate?('Inclui '+cc.daysLate+' dia(s) de atraso ('+esc(fmt(cc.lateFees))+').<br><br>'):'')+
+         'Ele sairá da pendência e ficará salvo no histórico.',
+    actions:[{label:"Cancelar"},{label:"Confirmar pagamento",cls:"btn-green",onClick:async ()=>{
+      const obj = Object.assign({}, l, {
+        status:"paid", paidAt:Date.now(),
+        paidDaysLate: cc.daysLate, paidLateFees: cc.lateFees,
+        paidPrincipal: l.principal, paidRatePct: l.ratePct,
+        paidInterest: l.interest, paidTotalBase: l.totalBase,
+        paidTotal: cc.current, updatedAt: Date.now()
+      });
+      upsert("loans", obj);
+      await fbSet("loans", obj);
+      toast("Pagamento salvo","ok");
+      render();
+    }}]
+  });
+}
+function doExport(){
+  const data = { app:"NX Empréstimos", version:1, exportedAt:new Date().toISOString(), clients:state.clients, loans:state.loans };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "nx-emprestimos-backup-" + todayISO() + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  toast("Backup exportado","ok");
+}
+function askWipe(){
+  popup({
+    title:"Apagar dados locais",
+    text:"Os dados salvos neste aparelho serão apagados. Se o Firebase estiver conectado, eles serão recarregados da nuvem.\n\nDeseja continuar?",
+    actions:[{label:"Cancelar"},{label:"Apagar dados",cls:"btn-red",onClick:()=>{
+      localStorage.removeItem(LS.clients); localStorage.removeItem(LS.loans);
+      state.clients=[]; state.loans=[];
+      toast("Dados locais apagados","ok");
+      go("home");
+    }}]
+  });
+}
+
+/* ----------------------------------------------------------------
+   14. TELA DE ACESSO
+   ---------------------------------------------------------------- */
+function unlock(){
+  $("#gate").style.transition="opacity .35s,transform .35s";
+  $("#gate").style.opacity="0";
+  $("#gate").style.transform="scale(1.04)";
+  setTimeout(()=>{ $("#gate").remove(); }, 350);
+  $("#app").classList.remove("hide");
+  render();
+  setTimeout(maybeShowDailyNotifications,700);
+  initFirebase();
+}
+function setupGate(){
+  $("#gateLogo").src = LOGO_B64;
+  const inp = $("#keyInput"), err = $("#keyErr");
+  const tryEnter = ()=>{
+    const v = inp.value.replace(/\D/g,"");
+    if(v === ACCESS_KEY){
+      localStorage.setItem(LS.auth, "1");
+      unlock();
+    }else{
+      err.classList.remove("hide");
+      inp.classList.remove("err"); void inp.offsetWidth; inp.classList.add("err");
+      inp.value="";
+    }
+  };
+  $("#btnEnter").onclick = tryEnter;
+  inp.addEventListener("keydown", e=>{
+    if(e.key==="Enter" && !e.nativeEvent?.isComposing && e.keyCode!==229){ e.preventDefault(); tryEnter(); }
+  });
+  inp.addEventListener("input", ()=>{ err.classList.add("hide"); inp.value = inp.value.replace(/\D/g,""); });
+  setTimeout(()=>inp.focus(), 400);
+}
+
+/* ----------------------------------------------------------------
+   15. BOOT
+   ---------------------------------------------------------------- */
+function boot(){
+  loadLocal();
+  if(localStorage.getItem(LS.auth) === "1"){
+    const g = $("#gate"); if(g) g.remove();
+    $("#app").classList.remove("hide");
+    render();
+    setTimeout(maybeShowDailyNotifications,700);
+    initFirebase();
+  }else{
+    setupGate();
+  }
+  console.log("[v0] NX Empréstimos iniciado. Clientes:", state.clients.length, "Empréstimos:", state.loans.length);
+}
+document.addEventListener("DOMContentLoaded", boot);
+
+})();
+</script>
+</body>
+</html>
